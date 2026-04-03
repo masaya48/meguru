@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/masayafukazawa/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh:*)",
+      "Skill(update-config)",
+      "Bash(git -C /Users/masayafukazawa/workspace/me/meguru rev-parse HEAD)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(asdf install:*)",
+      "Bash(export PATH=\"$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH\")",
+      "Read(//Users/masayafukazawa/.asdf/**)",
+      "Bash(brew list:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

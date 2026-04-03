@@ -1,0 +1,21 @@
+<svg width="100%" viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    
+  </defs>
+
+  <g style="fill:rgb(0, 0, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+    <path d="M 155 100 A 45 45 0 0 1 102.2 144.3" fill="none" stroke="#2D6A4F" stroke-width="10" stroke-linecap="round" style="fill:none;stroke:rgb(45, 106, 79);color:rgb(0, 0, 0);stroke-width:10px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+    <path d="M 87.5 139.0 A 45 45 0 0 1 75.5 71.1" fill="none" stroke="#52B788" stroke-width="10" stroke-linecap="round" style="fill:none;stroke:rgb(82, 183, 136);color:rgb(0, 0, 0);stroke-width:10px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+    <path d="M 87.5 61.0 A 45 45 0 0 1 152.3 84.6" fill="none" stroke="#E76F51" stroke-width="10" stroke-linecap="round" style="fill:none;stroke:rgb(231, 111, 81);color:rgb(0, 0, 0);stroke-width:10px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  </g>
+
+  <circle cx="110" cy="100" r="6" fill="#2D6A4F" style="fill:rgb(45, 106, 79);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <circle cx="110" cy="100" r="3" fill="#E76F51" style="fill:rgb(231, 111, 81);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <text x="196" y="112" font-family="'Palatino Linotype', Palatino, Georgia, serif" font-size="54" font-weight="400" letter-spacing="1" style="fill:rgb(26, 26, 46);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Palatino Linotype&quot;, Palatino, Georgia, serif;font-size:54px;font-weight:400;text-anchor:start;dominant-baseline:auto">meguru</text>
+  <text x="199" y="138" font-family="'Hiragino Sans', 'Yu Gothic', Meiryo, sans-serif" font-size="13" letter-spacing="3" style="fill:rgb(107, 114, 128);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Hiragino Sans&quot;, &quot;Yu Gothic&quot;, Meiryo, sans-serif;font-size:13px;font-weight:400;text-anchor:start;dominant-baseline:auto">地域をつなぐ、情報がめぐる</text>
+
+  <line x1="196" y1="148" x2="520" y2="148" stroke="#2D6A4F" stroke-width="1.5" opacity="0.3" style="fill:rgb(0, 0, 0);stroke:rgb(45, 106, 79);color:rgb(0, 0, 0);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.3;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <text x="199" y="164" font-family="'Hiragino Sans', 'Yu Gothic', Meiryo, sans-serif" font-size="11" letter-spacing="2" font-weight="500" style="fill:rgb(45, 106, 79);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Hiragino Sans&quot;, &quot;Yu Gothic&quot;, Meiryo, sans-serif;font-size:11px;font-weight:500;text-anchor:start;dominant-baseline:auto">COMMUNITY NOTICE PLATFORM</text>
+</svg>
