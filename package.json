@@ -8,7 +8,12 @@
     "test:e2e": "pnpm --filter @meguru/api test:e2e",
     "db:migrate": "pnpm --filter @meguru/db migrate",
     "db:generate": "pnpm --filter @meguru/db generate",
-    "db:seed": "pnpm --filter @meguru/db seed"
+    "db:seed": "pnpm --filter @meguru/db seed",
+    "lint": "oxlint . && pnpm -r --if-present run lint:eslint",
+    "lint:fix": "oxlint --fix . && pnpm -r --if-present run lint:eslint:fix",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "prepare": "lefthook install"
   },
   "engines": {
     "node": ">=22",
