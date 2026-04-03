@@ -1,0 +1,26 @@
+export {
+  PrismaClient,
+  Role,
+  UserStatus,
+  CircularType,
+  CircularStatus,
+  TargetType,
+  QuestionType,
+  InvitationMethod,
+  InvitationStatus,
+  NotificationChannel,
+  NotificationType,
+  NotificationStatus,
+} from "@prisma/client";
+export type {
+  Tenant,
+  User,
+  Group,
+  Circular,
+  CircularRead,
+  CircularQuestion,
+  CircularAnswer,
+  Template,
+  Invitation,
+  Notification,
+} from "@prisma/client";

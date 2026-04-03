@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  INVITED
+}
+
+enum CircularType {
+  NOTICE
+  SURVEY
+  ATTENDANCE
+}
+
+enum CircularStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum TargetType {
+  ALL
+  GROUP
+}
+
+enum QuestionType {
+  YES_NO
+  SINGLE_CHOICE
+  MULTI_CHOICE
+  FREE_TEXT
+}
+
+enum InvitationMethod {
+  EMAIL
+  LINE
+  QR
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+enum NotificationChannel {
+  LINE
+}
+
+enum NotificationType {
+  NEW_CIRCULAR
+  REMINDER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Tenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  slug      String   @unique @db.VarChar(50)
+  plan      String   @default("free") @db.VarChar(20)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  groups      Group[]
+  circulars   Circular[]
+  templates   Template[]
+  invitations Invitation[]
+  notifications Notification[]
+
+  @@map("tenants")
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  tenantId     String     @db.Uuid
+  groupId      String?    @db.Uuid
+  name         String     @db.VarChar(50)
+  email        String?    @db.VarChar(255)
+  phone        String?    @db.VarChar(20)
+  lineUserId   String?    @db.VarChar(100)
+  passwordHash String?    @db.VarChar(255)
+  role         Role       @default(MEMBER)
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  group         Group?           @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  createdCirculars Circular[]    @relation("CircularCreator")
+  reads         CircularRead[]
+  answers       CircularAnswer[]
+  invitations   Invitation[]     @relation("InvitedBy")
+  notifications Notification[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([lineUserId])
+  @@map("users")
+}
+
+model Group {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @db.Uuid
+  name      String   @db.VarChar(50)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users  User[]
+
+  @@index([tenantId])
+  @@map("groups")
+}
+
+model Circular {
+  id             String         @id @default(uuid()) @db.Uuid
+  tenantId       String         @db.Uuid
+  createdById    String         @db.Uuid
+  templateId     String?        @db.Uuid
+  title          String         @db.VarChar(200)
+  body           String         @db.Text
+  type           CircularType
+  status         CircularStatus @default(DRAFT)
+  targetType     TargetType     @default(ALL)
+  targetGroupIds String[]       @db.Uuid
+  deadline       DateTime?
+  publishedAt    DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy User               @relation("CircularCreator", fields: [createdById], references: [id])
+  template  Template?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  reads     CircularRead[]
+  questions CircularQuestion[]
+  notifications Notification[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@map("circulars")
+}
+
+model CircularRead {
+  id         String   @id @default(uuid()) @db.Uuid
+  circularId String   @db.Uuid
+  userId     String   @db.Uuid
+  readAt     DateTime @default(now())
+
+  circular Circular @relation(fields: [circularId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([circularId, userId])
+  @@index([circularId])
+  @@index([userId])
+  @@map("circular_reads")
+}
+
+model CircularQuestion {
+  id           String       @id @default(uuid()) @db.Uuid
+  circularId   String       @db.Uuid
+  questionText String       @db.VarChar(500)
+  type         QuestionType
+  options      Json?
+  sortOrder    Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  circular Circular         @relation(fields: [circularId], references: [id], onDelete: Cascade)
+  answers  CircularAnswer[]
+
+  @@index([circularId])
+  @@map("circular_questions")
+}
+
+model CircularAnswer {
+  id         String   @id @default(uuid()) @db.Uuid
+  questionId String   @db.Uuid
+  userId     String   @db.Uuid
+  answer     Json
+  answeredAt DateTime @default(now())
+
+  question CircularQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, userId])
+  @@index([questionId])
+  @@index([userId])
+  @@map("circular_answers")
+}
+
+model Template {
+  id           String       @id @default(uuid()) @db.Uuid
+  tenantId     String       @db.Uuid
+  name         String       @db.VarChar(100)
+  description  String?      @db.VarChar(500)
+  bodyTemplate String       @db.Text
+  type         CircularType
+  questions    Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  circulars Circular[]
+
+  @@index([tenantId])
+  @@map("templates")
+}
+
+model Invitation {
+  id          String           @id @default(uuid()) @db.Uuid
+  tenantId    String           @db.Uuid
+  invitedById String           @db.Uuid
+  token       String           @unique @db.VarChar(255)
+  method      InvitationMethod
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  createdAt   DateTime         @default(now())
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitedBy User   @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@index([token])
+  @@index([tenantId, status])
+  @@map("invitations")
+}
+
+model Notification {
+  id         String             @id @default(uuid()) @db.Uuid
+  tenantId   String             @db.Uuid
+  userId     String             @db.Uuid
+  circularId String             @db.Uuid
+  channel    NotificationChannel
+  type       NotificationType
+  status     NotificationStatus @default(PENDING)
+  sentAt     DateTime?
+  createdAt  DateTime           @default(now())
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circular Circular @relation(fields: [circularId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+  @@index([userId, status])
+  @@map("notifications")
+}
