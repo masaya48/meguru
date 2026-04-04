@@ -13,7 +13,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { LogoMark } from "@/components/logo";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ContactForm } from "./contact-form";
 
@@ -112,19 +111,18 @@ export default function LandingPage() {
               出欠確認をスマホひとつで実現するサービスです。
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-              <Button
-                className="h-12 rounded-xl bg-brand-800 px-8 text-base font-bold text-white hover:bg-brand-900"
-                render={<Link href="/auth/register" />}
+              <Link
+                href="/auth/register"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-800 px-8 text-base font-bold text-white hover:bg-brand-900 transition-colors"
               >
                 無料で始める
-              </Button>
-              <Button
-                variant="outline"
-                className="h-12 rounded-xl border-brand-800 px-8 text-base font-bold text-brand-800 hover:bg-brand-50"
-                render={<a href="#contact" />}
+              </Link>
+              <a
+                href="#contact"
+                className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-brand-800 px-8 text-base font-bold text-brand-800 hover:bg-brand-50 transition-colors"
               >
                 まずは相談する
-              </Button>
+              </a>
             </div>
           </div>
           {/* Phone mockup */}
@@ -321,19 +319,18 @@ export default function LandingPage() {
             登録は1分で完了。クレジットカードも不要です。
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button
-              className="h-12 rounded-xl bg-brand-800 px-8 text-base font-bold text-white hover:bg-brand-900"
-              render={<Link href="/auth/register" />}
+            <Link
+              href="/auth/register"
+              className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-800 px-8 text-base font-bold text-white hover:bg-brand-900 transition-colors"
             >
               無料で始める
-            </Button>
-            <Button
-              variant="outline"
-              className="h-12 rounded-xl border-brand-800 px-8 text-base font-bold text-brand-800 hover:bg-brand-50"
-              render={<a href="#contact" />}
+            </Link>
+            <a
+              href="#contact"
+              className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-brand-800 px-8 text-base font-bold text-brand-800 hover:bg-brand-50 transition-colors"
             >
               まずは相談する
-            </Button>
+            </a>
           </div>
         </div>
       </section>
