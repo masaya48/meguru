@@ -36,10 +36,8 @@ export function AdminMobileNav() {
         <span className="text-white font-bold text-sm">めぐる</span>
       </div>
       <Sheet>
-        <SheetTrigger asChild>
-          <button className="text-white p-1">
-            <Menu size={24} />
-          </button>
+        <SheetTrigger render={<button className="text-white p-1" />}>
+          <Menu size={24} />
         </SheetTrigger>
         <SheetContent side="left" className="bg-ink border-none w-64 p-0">
           <div className="px-4 py-5 border-b border-white/10">

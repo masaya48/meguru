@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,14 @@ import { Input } from "@/components/ui/input";
 import { registerUser } from "./actions";
 
 export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const params = useSearchParams();
   const [state, action, pending] = useActionState(registerUser, {});
 
