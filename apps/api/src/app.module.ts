@@ -1,38 +1,26 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
+import { ScheduleModule } from "@nestjs/schedule";
 import { PrismaModule } from "./modules/prisma/prisma.module";
 import { TenantModule } from "./modules/tenant/tenant.module";
 import { AuthModule } from "./modules/auth/auth.module";
-import { UserModule } from "./modules/user/user.module";
-import { GroupModule } from "./modules/group/group.module";
-import { CircularModule } from "./modules/circular/circular.module";
-import { ReadModule } from "./modules/read/read.module";
-import { AnswerModule } from "./modules/answer/answer.module";
-import { TemplateModule } from "./modules/template/template.module";
+import { MailModule } from "./modules/mail/mail.module";
 import { LineModule } from "./modules/line/line.module";
 import { NotificationModule } from "./modules/notification/notification.module";
-import { MailModule } from "./modules/mail/mail.module";
-import { ScheduleModule } from "@nestjs/schedule";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     TenantModule,
     AuthModule,
     MailModule,
-    UserModule,
-    GroupModule,
-    CircularModule,
-    ReadModule,
-    AnswerModule,
-    TemplateModule,
     LineModule,
     NotificationModule,
-    ScheduleModule.forRoot(),
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
