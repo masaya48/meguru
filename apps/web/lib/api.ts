@@ -1,6 +1,6 @@
 // Server-side: use absolute URL; Client-side: use relative path (proxied by Next.js rewrites)
 const API_BASE =
-  typeof window === "undefined" ? (process.env.API_URL ?? "http://localhost:4000") : "/api";
+  typeof window === "undefined" ? (process.env.API_URL ?? "http://localhost:3001") : "/api";
 
 interface ApiOptions extends RequestInit {
   token?: string;

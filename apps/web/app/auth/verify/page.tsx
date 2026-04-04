@@ -15,18 +15,12 @@ export default async function VerifyPage({
     redirect("/auth/login");
   }
 
+  let accessToken: string;
   try {
     const res = await api<{ accessToken: string }>(`/auth/verify?token=${token}`, {
       method: "POST",
     });
-
-    await setToken(res.accessToken);
-    const payload = parseJwt(res.accessToken);
-    if (payload?.role === "ADMIN") {
-      redirect("/dashboard");
-    } else {
-      redirect("/");
-    }
+    accessToken = res.accessToken;
   } catch {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -42,5 +36,13 @@ export default async function VerifyPage({
         </div>
       </div>
     );
+  }
+
+  await setToken(accessToken);
+  const payload = parseJwt(accessToken);
+  if (payload?.role === "ADMIN") {
+    redirect("/dashboard");
+  } else {
+    redirect("/");
   }
 }
