@@ -50,6 +50,15 @@ packages/shared/ → 共通型定義・ユーティリティ
 | `/seed` | テストデータ投入 |
 | `/db-reset` | 開発 DB リセット |
 
+## Branch Strategy
+
+- **main** — 本番相当。直接コミット禁止。PR経由のみ
+- **feat/issue-{n}-{slug}** — 機能開発。Issue から `/work-on-issue` で作成
+- **fix/issue-{n}-{slug}** — バグ修正
+- **chore/{slug}** — 設定・ドキュメント・依存更新
+
+main への直接 push は docs/ と .claude/ の変更のみ許可。コード変更は必ずブランチ→PR。
+
 ## Rules
 
 - 日本語でコミュニケーション
@@ -57,3 +66,4 @@ packages/shared/ → 共通型定義・ユーティリティ
 - 既存パターンに従う。不要なリファクタリングはしない
 - タスクのスコープ外の作業をしない
 - ファイル編集前に .claude/rules/context-map.md を参照し、関連 ADR/Spec を読む
+- コード変更は必ずブランチを切って PR 経由でマージする
