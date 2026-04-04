@@ -31,6 +31,7 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
   const res = await fetch(`${API_BASE}${path}`, {
     ...fetchOptions,
     headers,
+    cache: "no-store",
   });
 
   if (!res.ok) {
