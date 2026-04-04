@@ -1,0 +1,95 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(docker compose:*)",
+      "Bash(psql:*)",
+      "Bash(pg_isready:*)",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf .:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push origin main --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(sudo rm:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(sudo chown:*)",
+      "Bash(DROP DATABASE:*)",
+      "Bash(DROP TABLE:*)",
+      "Bash(pkill -9:*)",
+      "Bash(kill -9:*)"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "pnpm install/add/remove operations",
+      "Running tests, linters, formatters",
+      "Docker compose up/down/ps/logs",
+      "Prisma migrate/generate/seed",
+      "Git add/commit/status/diff/log",
+      "File read/write/edit within project"
+    ],
+    "soft_deny": [
+      "Database DROP/TRUNCATE operations",
+      "Git force push or hard reset",
+      "Modifying .env files containing secrets",
+      "Deleting directories recursively",
+      "Publishing packages to npm"
+    ],
+    "environment": [
+      "pnpm monorepo with apps/web (Next.js) and apps/api (NestJS)",
+      "PostgreSQL via Docker Compose",
+      "Prisma ORM in packages/db"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; echo \"$f\" | grep -qE '\\.(ts|tsx|js|jsx)$' && pnpm oxlint --fix \"$f\" && pnpm oxfmt \"$f\" && pnpm eslint --fix \"$f\"; } 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Running oxlint, oxfmt & eslint..."
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Preserve: current task name/step, pending work items, key design decisions made this session, file paths being worked on, any errors being debugged."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/masayafukazawa/workspace/me/meguru && pnpm oxlint . 2>&1 | tail -3",
+            "timeout": 15,
+            "statusMessage": "Final lint check..."
+          }
+        ]
+      }
+    ]
+  }
+}
