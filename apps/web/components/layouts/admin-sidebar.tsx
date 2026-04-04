@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   { href: "/members", label: "住民管理", icon: Users },
   { href: "/groups", label: "グループ", icon: Layers },
   { href: "/templates", label: "テンプレート", icon: FileText },
-  { href: "/settings", label: "設定", icon: Settings },
+  { href: "/admin-settings", label: "設定", icon: Settings },
 ];
 
 export function AdminSidebar() {
