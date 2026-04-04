@@ -8,6 +8,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { MailModule } from "./modules/mail/mail.module";
 import { LineModule } from "./modules/line/line.module";
 import { NotificationModule } from "./modules/notification/notification.module";
+import { StudentModule } from "./modules/student/student.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -21,6 +22,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     MailModule,
     LineModule,
     NotificationModule,
+    StudentModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
