@@ -10,6 +10,7 @@ interface UserInfo {
   email: string | null;
   role: string;
   group: { name: string } | null;
+  lineUserId: string | null;
 }
 
 export default async function SettingsPage() {
@@ -52,6 +53,24 @@ export default async function SettingsPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* LINE連携 */}
+      <div className="rounded-xl bg-gray-50 p-5 space-y-3">
+        <h2 className="text-lg font-bold text-ink">LINE連携</h2>
+        {user?.lineUserId ? (
+          <div className="flex items-center gap-2">
+            <span className="text-green-600 text-lg">&#x2705;</span>
+            <span className="text-lg text-ink">LINE連携済み</span>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-ink-light">
+              LINEと連携すると、新しい回覧の通知を受け取れます
+            </p>
+            <p className="text-sm text-ink-muted">※ LINE連携機能は準備中です</p>
+          </div>
+        )}
       </div>
 
       {/* Logout */}
