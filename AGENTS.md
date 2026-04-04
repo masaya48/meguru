@@ -35,9 +35,25 @@ packages/shared/ → 共通型定義・ユーティリティ
 | UI Spec | [docs/spec/003-ui-spec.md](docs/spec/003-ui-spec.md) |
 | Design System | [docs/design-system/design-system.md](docs/design-system/design-system.md) |
 
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/work-on-issue {n}` | Issue を読み込み、ブランチ→実装→PR まで一気通貫 |
+| `/triage-issue {n}` | Issue にラベル・優先度・サイズを付与 |
+| `/learn-from-review {n}` | PR レビューから学びを rules に反映 |
+| `/audit-deps` | 依存パッケージの脆弱性・更新チェック |
+| `/audit-code` | コード品質監査 → tech-debt Issue 作成 |
+| `/quality-gate` | PR マージ前の品質ゲートチェック |
+| `/check` | lint + format + test 一括実行 |
+| `/migrate` | Prisma マイグレーション実行 |
+| `/seed` | テストデータ投入 |
+| `/db-reset` | 開発 DB リセット |
+
 ## Rules
 
 - 日本語でコミュニケーション
 - コミットメッセージは英語 (Conventional Commits)
 - 既存パターンに従う。不要なリファクタリングはしない
 - タスクのスコープ外の作業をしない
+- ファイル編集前に .claude/rules/context-map.md を参照し、関連 ADR/Spec を読む

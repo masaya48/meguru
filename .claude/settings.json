@@ -10,6 +10,7 @@
       "Bash(docker compose:*)",
       "Bash(psql:*)",
       "Bash(pg_isready:*)",
+      "Bash(gh:*)",
       "Read",
       "Edit",
       "Write",
@@ -39,20 +40,23 @@
       "Running tests, linters, formatters",
       "Docker compose up/down/ps/logs",
       "Prisma migrate/generate/seed",
-      "Git add/commit/status/diff/log",
-      "File read/write/edit within project"
+      "Git add/commit/status/diff/log/switch/branch",
+      "File read/write/edit within project",
+      "gh issue/pr view/list/create/edit operations"
     ],
     "soft_deny": [
       "Database DROP/TRUNCATE operations",
       "Git force push or hard reset",
       "Modifying .env files containing secrets",
       "Deleting directories recursively",
-      "Publishing packages to npm"
+      "Publishing packages to npm",
+      "gh issue/pr close/delete operations"
     ],
     "environment": [
       "pnpm monorepo with apps/web (Next.js) and apps/api (NestJS)",
       "PostgreSQL via Docker Compose",
-      "Prisma ORM in packages/db"
+      "Prisma ORM in packages/db",
+      "GitHub Issues for task tracking"
     ]
   },
   "hooks": {
@@ -74,7 +78,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Preserve: current task name/step, pending work items, key design decisions made this session, file paths being worked on, any errors being debugged."
+            "prompt": "Preserve: current task name/step, pending work items, key design decisions made this session, file paths being worked on, any errors being debugged, the GitHub Issue number if working on one."
           }
         ]
       }
@@ -87,6 +91,12 @@
             "command": "cd /Users/masayafukazawa/workspace/me/meguru && pnpm oxlint . 2>&1 | tail -3",
             "timeout": 15,
             "statusMessage": "Final lint check..."
+          },
+          {
+            "type": "agent",
+            "prompt": "このセッションを振り返り、.claude/rules/ に追記すべき学びがあるか判断して。対象: 踏んだ地雷、発見したパターン、効果的だったアプローチ。変更すべきものがあれば該当ファイルに追記して git commit -m 'chore: update rules from session learnings' する。変更不要なら何もしない。rules ディレクトリ: /Users/masayafukazawa/workspace/me/meguru/.claude/rules/",
+            "timeout": 60,
+            "statusMessage": "Reflecting on session learnings..."
           }
         ]
       }
