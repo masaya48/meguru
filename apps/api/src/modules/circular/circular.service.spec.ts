@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { CircularService } from "./circular.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { NotificationService } from "../notification/notification.service";
 import { NotFoundException, ForbiddenException } from "@nestjs/common";
 
 describe("CircularService", () => {
@@ -15,6 +16,7 @@ describe("CircularService", () => {
     };
     circularQuestion: { createMany: jest.Mock };
   };
+  let notificationService: { notifyCircularPublished: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -27,9 +29,16 @@ describe("CircularService", () => {
       },
       circularQuestion: { createMany: jest.fn() },
     };
+    notificationService = {
+      notifyCircularPublished: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CircularService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        CircularService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: NotificationService, useValue: notificationService },
+      ],
     }).compile();
 
     service = module.get<CircularService>(CircularService);

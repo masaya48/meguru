@@ -21,6 +21,8 @@
     "@nestjs/mapped-types": "^2.0.0",
     "@nestjs/passport": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@line/bot-sdk": "^9.0.0",
+    "@nestjs/schedule": "^6.1.1",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -71,8 +73,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "^@meguru/db$": "<rootDir>/../../../packages/db/src/index.js",
-      "^@prisma/client$": "<rootDir>/../../../packages/db/node_modules/@prisma/client"
+      "^@meguru/db$": "<rootDir>/../../../packages/db/src"
     }
   }
 }

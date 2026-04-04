@@ -1,11 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { NotificationService } from "../notification/notification.service";
 import { CreateCircularDto } from "./dto/create-circular.dto";
 import { UpdateCircularDto } from "./dto/update-circular.dto";
 
 @Injectable()
 export class CircularService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(CircularService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async create(tenantId: string, userId: string, dto: CreateCircularDto) {
     const { questions, ...circularData } = dto;
@@ -103,10 +109,17 @@ export class CircularService {
       throw new BadRequestException("Only draft circulars can be published");
     }
 
-    return this.prisma.circular.update({
+    const updated = await this.prisma.circular.update({
       where: { id: circularId },
       data: { status: "PUBLISHED", publishedAt: new Date() },
     });
+
+    // Fire-and-forget: send LINE notifications
+    this.notificationService.notifyCircularPublished(circularId).catch((err) => {
+      this.logger.error("Failed to send notifications", err);
+    });
+
+    return updated;
   }
 
   async close(tenantId: string, circularId: string) {

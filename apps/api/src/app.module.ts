@@ -11,6 +11,8 @@ import { ReadModule } from "./modules/read/read.module";
 import { AnswerModule } from "./modules/answer/answer.module";
 import { TemplateModule } from "./modules/template/template.module";
 import { LineModule } from "./modules/line/line.module";
+import { NotificationModule } from "./modules/notification/notification.module";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -27,6 +29,8 @@ import { RolesGuard } from "./common/guards/roles.guard";
     AnswerModule,
     TemplateModule,
     LineModule,
+    NotificationModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
