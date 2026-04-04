@@ -13,7 +13,10 @@
     "lint:fix": "oxlint --fix . && pnpm -r --if-present run lint:eslint:fix",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v && docker compose up -d"
   },
   "devDependencies": {
     "eslint": "^9.39.4",
@@ -25,5 +28,14 @@
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
   }
 }
