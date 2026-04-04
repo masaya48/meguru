@@ -14,8 +14,6 @@ import {
   Clock,
   HelpCircle,
   ClipboardList,
-  CircleCheck,
-  CircleX,
   type LucideIcon,
 } from "lucide-react";
 import { LogoMark } from "@/components/logo";
