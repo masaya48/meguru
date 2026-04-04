@@ -11,6 +11,12 @@ import {
   FileText,
   ChevronDown,
   CheckCircle2,
+  Clock,
+  HelpCircle,
+  ClipboardList,
+  CircleCheck,
+  CircleX,
+  type LucideIcon,
 } from "lucide-react";
 import { LogoMark } from "@/components/logo";
 import { Card, CardContent } from "@/components/ui/card";
@@ -139,23 +145,27 @@ export default function LandingPage() {
             こんなお悩みありませんか？
           </h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {[
-              {
-                emoji: "🐌",
-                title: "回覧板が回るのに\n1週間以上かかる",
-              },
-              {
-                emoji: "❓",
-                title: "誰が読んだか\n把握できない",
-              },
-              {
-                emoji: "📝",
-                title: "出欠確認の集計が\n手作業で大変",
-              },
-            ].map((item) => (
+            {(
+              [
+                {
+                  icon: Clock,
+                  title: "回覧板が回るのに\n1週間以上かかる",
+                },
+                {
+                  icon: HelpCircle,
+                  title: "誰が読んだか\n把握できない",
+                },
+                {
+                  icon: ClipboardList,
+                  title: "出欠確認の集計が\n手作業で大変",
+                },
+              ] as { icon: LucideIcon; title: string }[]
+            ).map((item) => (
               <Card key={item.title} className="border-none bg-white shadow-sm">
                 <CardContent className="pt-2 text-center">
-                  <span className="text-4xl">{item.emoji}</span>
+                  <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-coral-100">
+                    <item.icon className="size-7 text-coral-500" />
+                  </div>
                   <p className="mt-3 whitespace-pre-line text-base font-bold leading-snug text-ink sm:text-lg">
                     {item.title}
                   </p>
@@ -187,7 +197,7 @@ export default function LandingPage() {
               {
                 icon: MousePointerClick,
                 title: "出欠もワンタップ",
-                desc: "⭕❌の大きなボタンで回答完了。集計も自動です。",
+                desc: "大きなボタンで回答完了。集計も自動です。",
               },
             ].map((item) => (
               <div key={item.title} className="flex flex-col items-center">
