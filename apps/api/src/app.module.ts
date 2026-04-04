@@ -12,6 +12,7 @@ import { AnswerModule } from "./modules/answer/answer.module";
 import { TemplateModule } from "./modules/template/template.module";
 import { LineModule } from "./modules/line/line.module";
 import { NotificationModule } from "./modules/notification/notification.module";
+import { MailModule } from "./modules/mail/mail.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -22,6 +23,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     PrismaModule,
     TenantModule,
     AuthModule,
+    MailModule,
     UserModule,
     GroupModule,
     CircularModule,

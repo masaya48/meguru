@@ -6,6 +6,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { RequestMagicLinkDto } from "./dto/magic-link.dto";
+import { MailService } from "../mail/mail.service";
 import * as crypto from "node:crypto";
 
 @Injectable()
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -67,6 +69,10 @@ export class AuthService {
       return { message: "If an account exists, a login link has been sent" };
     }
 
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+    });
+
     const token = crypto.randomBytes(32).toString("hex");
     const secret = this.configService.getOrThrow<string>("MAGIC_LINK_SECRET");
     const payload = { userId: user.id, tenantId: user.tenantId, token };
@@ -76,10 +82,9 @@ export class AuthService {
     });
 
     const appUrl = this.configService.getOrThrow<string>("APP_URL");
-    const _link = `${appUrl}/auth/verify?token=${magicToken}`;
+    const link = `${appUrl}/auth/verify?token=${magicToken}`;
 
-    // TODO: Send email with link via nodemailer (Phase 2)
-    console.log(`Magic link for ${user.email}: ${_link}`);
+    await this.mailService.sendMagicLink(user.email!, link, tenant?.name ?? undefined);
 
     return { message: "If an account exists, a login link has been sent" };
   }

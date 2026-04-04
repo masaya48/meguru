@@ -4,14 +4,19 @@ import { ConfigService } from "@nestjs/config";
 import { UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { MailService } from "../mail/mail.service";
 import * as bcrypt from "bcrypt";
 
 jest.mock("bcrypt");
 
 describe("AuthService", () => {
   let service: AuthService;
-  let prisma: { user: { findFirst: jest.Mock; create: jest.Mock; update: jest.Mock } };
+  let prisma: {
+    user: { findFirst: jest.Mock; create: jest.Mock; update: jest.Mock };
+    tenant: { findUnique: jest.Mock };
+  };
   let jwtService: { signAsync: jest.Mock };
+  let mailService: { sendMagicLink: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -20,14 +25,19 @@ describe("AuthService", () => {
         create: jest.fn(),
         update: jest.fn(),
       },
+      tenant: {
+        findUnique: jest.fn().mockResolvedValue({ id: "t1", name: "テストテナント" }),
+      },
     };
     jwtService = { signAsync: jest.fn().mockResolvedValue("jwt-token") };
+    mailService = { sendMagicLink: jest.fn().mockResolvedValue(undefined) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: PrismaService, useValue: prisma },
         { provide: JwtService, useValue: jwtService },
+        { provide: MailService, useValue: mailService },
         {
           provide: ConfigService,
           useValue: {
