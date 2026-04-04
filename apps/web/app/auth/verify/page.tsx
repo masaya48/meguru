@@ -1,48 +1,32 @@
 import { redirect } from "next/navigation";
-import { api } from "@/lib/api";
-import { setToken, parseJwt } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function VerifyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; error?: string }>;
 }) {
-  const { token } = await searchParams;
+  const { token, error } = await searchParams;
 
-  if (!token) {
-    redirect("/auth/login");
+  // If there's a token but no error, redirect to the Route Handler to process it
+  if (token && !error) {
+    redirect(`/api/auth/verify?token=${token}`);
   }
 
-  let accessToken: string;
-  try {
-    const res = await api<{ accessToken: string }>(`/auth/verify?token=${token}`, {
-      method: "POST",
-    });
-    accessToken = res.accessToken;
-  } catch {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-        <div className="text-center space-y-4">
-          <p className="text-xl font-bold text-ink">リンクが無効または期限切れです</p>
-          <p className="text-ink-light">もう一度ログインしてください</p>
-          <a
-            href="/auth/login"
-            className="inline-block rounded-xl bg-brand-800 px-6 py-3 text-white font-bold"
-          >
-            ログインページへ
-          </a>
-        </div>
+  // Show error page
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="text-center space-y-4">
+        <p className="text-xl font-bold text-ink">リンクが無効または期限切れです</p>
+        <p className="text-ink-light">もう一度ログインしてください</p>
+        <a
+          href="/auth/login"
+          className="inline-block rounded-xl bg-brand-800 px-6 py-3 text-white font-bold"
+        >
+          ログインページへ
+        </a>
       </div>
-    );
-  }
-
-  await setToken(accessToken);
-  const payload = parseJwt(accessToken);
-  if (payload?.role === "ADMIN") {
-    redirect("/dashboard");
-  } else {
-    redirect("/");
-  }
+    </div>
+  );
 }
