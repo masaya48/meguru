@@ -24,7 +24,7 @@ export async function loginWithPassword(
 
     await setToken(res.accessToken);
     const payload = parseJwt(res.accessToken);
-    if (payload?.role === "ADMIN") {
+    if (payload?.role === "TEACHER") {
       redirect("/dashboard");
     } else {
       redirect("/");

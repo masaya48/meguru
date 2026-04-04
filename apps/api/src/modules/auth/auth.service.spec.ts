@@ -57,23 +57,23 @@ describe("AuthService", () => {
   });
 
   describe("register", () => {
-    it("creates user with hashed password for admin", async () => {
+    it("creates user with hashed password for teacher", async () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashed");
       prisma.user.findFirst.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue({
         id: "u1",
         tenantId: "t1",
-        role: "ADMIN",
-        name: "Admin",
+        role: "TEACHER",
+        name: "Teacher",
         email: "a@test.com",
       });
 
       const result = await service.register({
         tenantId: "t1",
-        name: "Admin",
+        name: "Teacher",
         email: "a@test.com",
         password: "password123",
-        role: "ADMIN",
+        role: "TEACHER",
       });
 
       expect(result.accessToken).toBe("jwt-token");
@@ -81,7 +81,7 @@ describe("AuthService", () => {
         expect.objectContaining({
           data: expect.objectContaining({
             passwordHash: "hashed",
-            role: "ADMIN",
+            role: "TEACHER",
             status: "ACTIVE",
           }),
         }),
@@ -93,14 +93,14 @@ describe("AuthService", () => {
       prisma.user.create.mockResolvedValue({
         id: "u2",
         tenantId: "t1",
-        role: "MEMBER",
-        name: "Member",
+        role: "PARENT",
+        name: "Parent",
         email: "m@test.com",
       });
 
       const result = await service.register({
         tenantId: "t1",
-        name: "Member",
+        name: "Parent",
         email: "m@test.com",
       });
 
@@ -114,7 +114,7 @@ describe("AuthService", () => {
       prisma.user.findFirst.mockResolvedValue({
         id: "u1",
         tenantId: "t1",
-        role: "ADMIN",
+        role: "TEACHER",
         passwordHash: "hashed",
       });
 

@@ -34,7 +34,7 @@ export class AuthService {
         name: dto.name,
         email: dto.email,
         passwordHash,
-        role: dto.role ?? "MEMBER",
+        role: dto.role ?? "PARENT",
         status: "ACTIVE",
       },
     });

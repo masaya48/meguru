@@ -28,3 +28,19 @@
 ## テナント関連の変更
 - docs/adr/004-multi-tenancy.md
 - docs/adr/008-subdomain-tenant-and-rls.md
+
+## package.json, .github/workflows/, scripts/
+- AGENTS.md (ブランチ戦略、コマンドインデックス)
+- docs/adr/007-local-dev-setup.md (環境セットアップ)
+
+## .env.example, .env.* 関連
+- scripts/setup-env.sh が .env 自動生成
+- `pnpm setup` で初期セットアップ完了
+- `pnpm dev` の前に自動実行
+
+## CI/CD 変更時
+- .github/workflows/lint-and-format.yml
+- .github/workflows/typecheck.yml (新規)
+- .github/workflows/test.yml (新規)
+- .github/workflows/build.yml (新規)
+- AGENTS.md (テスト/型チェック要件)
