@@ -15,6 +15,7 @@ import { LessonModule } from "./modules/lesson/lesson.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { PaymentModule } from "./modules/payment/payment.module";
 import { AiModule } from "./modules/ai/ai.module";
+import { LessonNoteModule } from "./modules/lesson-note/lesson-note.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -35,6 +36,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     AttendanceModule,
     PaymentModule,
     AiModule,
+    LessonNoteModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
