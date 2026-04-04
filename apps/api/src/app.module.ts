@@ -10,6 +10,7 @@ import { CircularModule } from "./modules/circular/circular.module";
 import { ReadModule } from "./modules/read/read.module";
 import { AnswerModule } from "./modules/answer/answer.module";
 import { TemplateModule } from "./modules/template/template.module";
+import { LineModule } from "./modules/line/line.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -25,6 +26,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     ReadModule,
     AnswerModule,
     TemplateModule,
+    LineModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
