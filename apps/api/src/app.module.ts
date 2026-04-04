@@ -13,6 +13,7 @@ import { CourseModule } from "./modules/course/course.module";
 import { ParentModule } from "./modules/parent/parent.module";
 import { LessonModule } from "./modules/lesson/lesson.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
+import { PaymentModule } from "./modules/payment/payment.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -31,6 +32,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     ParentModule,
     LessonModule,
     AttendanceModule,
+    PaymentModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
