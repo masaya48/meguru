@@ -18,6 +18,7 @@ import { AiModule } from "./modules/ai/ai.module";
 import { LessonNoteModule } from "./modules/lesson-note/lesson-note.module";
 import { MonthlySummaryModule } from "./modules/monthly-summary/monthly-summary.module";
 import { RescheduleModule } from "./modules/reschedule/reschedule.module";
+import { AbsenceModule } from "./modules/absence/absence.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -41,6 +42,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     LessonNoteModule,
     MonthlySummaryModule,
     RescheduleModule,
+    AbsenceModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
