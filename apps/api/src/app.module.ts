@@ -16,6 +16,7 @@ import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { PaymentModule } from "./modules/payment/payment.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { LessonNoteModule } from "./modules/lesson-note/lesson-note.module";
+import { MonthlySummaryModule } from "./modules/monthly-summary/monthly-summary.module";
 import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -37,6 +38,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     PaymentModule,
     AiModule,
     LessonNoteModule,
+    MonthlySummaryModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
