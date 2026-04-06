@@ -24,8 +24,8 @@ export async function loginWithPassword(
 
     await setToken(res.accessToken);
     const payload = parseJwt(res.accessToken);
-    if (payload?.role === "TEACHER") {
-      redirect("/dashboard");
+    if (payload?.role === "TEACHER" || payload?.role === "PARENT") {
+      redirect("/");
     } else {
       redirect("/");
     }
@@ -46,7 +46,7 @@ export async function requestMagicLink(
     // First resolve tenant
     const tenant = await api<{ id: string } | null>(`/tenants/${tenantSlug}`);
     if (!tenant) {
-      return { error: "町内会が見つかりません" };
+      return { error: "教室が見つかりません" };
     }
 
     await api("/auth/magic-link", {
