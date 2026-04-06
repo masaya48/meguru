@@ -20,6 +20,32 @@
 - docs/spec/003-ui-spec.md (画面仕様)
 - docs/design-system/design-system.md (デザインシステム)
 
+## apps/web/app/(teacher)/
+- docs/spec/003-ui-spec.md (先生向け画面仕様)
+- 先生ロール: JWT payload.role === "TEACHER"
+- TeacherBottomNav, TeacherLayout パターンに従う
+
+## apps/web/app/(parent)/
+- docs/spec/003-ui-spec.md (保護者向け画面仕様)
+- 保護者ロール: JWT payload.role === "PARENT"
+- シンプルヘッダーのみ、BottomNav なし
+
+## apps/api/src/modules/lesson/
+- docs/spec/002-data-model.md (LessonSlot, LessonSession モデル)
+- docs/spec/001-system-architecture.md (モジュール構成)
+
+## apps/api/src/modules/attendance/
+- docs/spec/002-data-model.md (Attendance モデル)
+
+## apps/api/src/modules/payment/
+- docs/spec/002-data-model.md (Payment モデル)
+
+## apps/api/src/modules/absence/
+- docs/spec/002-data-model.md (Absence モデル)
+
+## apps/api/src/modules/lesson-note/ or apps/api/src/modules/monthly-summary/
+- docs/spec/002-data-model.md (LessonNote, MonthlySummary モデル)
+
 ## packages/db/
 - docs/spec/002-data-model.md (データモデル)
 - docs/adr/004-multi-tenancy.md (tenantIdフィルタ)
