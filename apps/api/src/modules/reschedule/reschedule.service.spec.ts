@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RescheduleService } from "./reschedule.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException } from "@nestjs/common";
 import { RescheduleStatus } from "@meguru/db";
 
 describe("RescheduleService", () => {
