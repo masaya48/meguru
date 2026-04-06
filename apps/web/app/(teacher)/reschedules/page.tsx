@@ -45,7 +45,6 @@ export default function ReschedulesPage() {
   const loadRequests = (status?: string) => {
     const url =
       status && status !== "ALL" ? `/api/reschedules?status=${status}` : "/api/reschedules";
-    setLoading(true);
     fetch(url, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
@@ -73,6 +72,7 @@ export default function ReschedulesPage() {
       showMessage("error", result.error);
     } else {
       showMessage("success", "振替リクエストを承認しました");
+      setLoading(true);
       loadRequests(filter);
     }
   };
@@ -86,6 +86,7 @@ export default function ReschedulesPage() {
       showMessage("error", result.error);
     } else {
       showMessage("success", "振替リクエストを却下しました");
+      setLoading(true);
       loadRequests(filter);
     }
   };
@@ -111,7 +112,10 @@ export default function ReschedulesPage() {
         {(["PENDING", "ALL"] as const).map((f) => (
           <button
             key={f}
-            onClick={() => setFilter(f)}
+            onClick={() => {
+              setLoading(true);
+              setFilter(f);
+            }}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               filter === f
                 ? "bg-brand-600 text-white"

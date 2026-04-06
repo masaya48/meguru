@@ -47,7 +47,6 @@ export default function PaymentsPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const loadData = (y: number, m: number) => {
-    setLoading(true);
     Promise.all([
       fetch(`/api/payments?year=${y}&month=${m}`, { credentials: "include" }).then((r) => r.json()),
       fetch(`/api/payments/summary?year=${y}&month=${m}`, { credentials: "include" }).then((r) =>
@@ -85,6 +84,7 @@ export default function PaymentsPage() {
       showMessage("error", result.error);
     } else {
       showMessage("success", "支払いを生成しました");
+      setLoading(true);
       loadData(year, month);
     }
   };
@@ -97,6 +97,7 @@ export default function PaymentsPage() {
       showMessage("error", result.error);
     } else {
       showMessage("success", "入金を確認しました");
+      setLoading(true);
       loadData(year, month);
     }
   };
@@ -132,7 +133,10 @@ export default function PaymentsPage() {
             <input
               type="number"
               value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              onChange={(e) => {
+                setLoading(true);
+                setYear(Number(e.target.value));
+              }}
               className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
@@ -140,7 +144,10 @@ export default function PaymentsPage() {
             <label className="block text-sm font-medium text-ink mb-1">月</label>
             <select
               value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
+              onChange={(e) => {
+                setLoading(true);
+                setMonth(Number(e.target.value));
+              }}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (

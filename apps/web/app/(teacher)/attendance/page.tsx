@@ -55,7 +55,6 @@ export default function AttendancePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch(`/api/lessons/daily?date=${date}`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
@@ -77,7 +76,10 @@ export default function AttendancePage() {
         <input
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => {
+            setLoading(true);
+            setDate(e.target.value);
+          }}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         {date && <p className="mt-1 text-sm text-ink-light">{formatDate(date)}</p>}

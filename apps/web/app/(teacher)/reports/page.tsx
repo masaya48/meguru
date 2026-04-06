@@ -86,7 +86,6 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    setLoading(true);
     Promise.all([
       fetch("/api/lesson-notes", { credentials: "include" }).then((r) => r.json()),
       fetch(`/api/monthly-summaries?year=${summaryYear}&month=${summaryMonth}`, {
