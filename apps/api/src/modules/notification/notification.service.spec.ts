@@ -5,20 +5,17 @@ import { LineService } from "../line/line.service";
 
 describe("NotificationService", () => {
   let service: NotificationService;
-  let prisma: {
-    user: { findMany: jest.Mock };
-    notification: { create: jest.Mock; updateMany: jest.Mock };
-    circular: { findUnique: jest.Mock };
-    tenant: { findUnique: jest.Mock };
-  };
+  let prisma: Record<string, any>;
   let lineService: { pushMessage: jest.Mock; getAppUrl: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
-      user: { findMany: jest.fn() },
-      notification: { create: jest.fn(), updateMany: jest.fn() },
-      circular: { findUnique: jest.fn() },
-      tenant: { findUnique: jest.fn() },
+      lessonNote: { findUnique: jest.fn() },
+      lessonSession: { findUnique: jest.fn() },
+      rescheduleRequest: { findUnique: jest.fn() },
+      payment: { findUnique: jest.fn() },
+      studentParent: { findMany: jest.fn() },
+      notification: { create: jest.fn() },
     };
     lineService = {
       pushMessage: jest.fn().mockResolvedValue(undefined),
@@ -36,44 +33,46 @@ describe("NotificationService", () => {
     service = module.get<NotificationService>(NotificationService);
   });
 
-  describe("notifyCircularPublished", () => {
-    it("sends LINE notifications to connected users", async () => {
-      prisma.circular.findUnique.mockResolvedValue({
-        id: "c1",
+  it("should be defined", () => {
+    expect(service).toBeDefined();
+  });
+
+  describe("sendLessonReminder", () => {
+    it("sends reminder to parents with LINE", async () => {
+      prisma.lessonSession.findUnique.mockResolvedValue({
+        id: "s1",
         tenantId: "t1",
-        title: "テスト回覧",
-        type: "ATTENDANCE",
-        targetType: "ALL",
-        targetGroupIds: [],
-        questions: [{ id: "q1", type: "YES_NO", options: ["参加", "不参加"] }],
+        date: new Date(),
+        startTime: "16:00",
+        student: {
+          id: "st1",
+          name: "田中太郎",
+          studentParents: [{ user: { id: "u1", lineUserId: "line-1" } }],
+        },
+        course: { name: "ピアノ初級" },
       });
-      prisma.tenant.findUnique.mockResolvedValue({ name: "テスト町内会" });
-      prisma.user.findMany.mockResolvedValue([
-        { id: "u1", lineUserId: "line-1" },
-        { id: "u2", lineUserId: "line-2" },
-      ]);
       prisma.notification.create.mockResolvedValue({ id: "n1" });
 
-      await service.notifyCircularPublished("c1");
+      await service.sendLessonReminder("s1");
 
-      expect(lineService.pushMessage).toHaveBeenCalledTimes(2);
-      expect(prisma.notification.create).toHaveBeenCalledTimes(2);
+      expect(lineService.pushMessage).toHaveBeenCalledTimes(1);
     });
 
-    it("skips users without LINE connection", async () => {
-      prisma.circular.findUnique.mockResolvedValue({
-        id: "c1",
+    it("skips parents without LINE", async () => {
+      prisma.lessonSession.findUnique.mockResolvedValue({
+        id: "s1",
         tenantId: "t1",
-        title: "テスト",
-        type: "NOTICE",
-        targetType: "ALL",
-        targetGroupIds: [],
-        questions: [],
+        date: new Date(),
+        startTime: "16:00",
+        student: {
+          id: "st1",
+          name: "田中太郎",
+          studentParents: [{ user: { id: "u1", lineUserId: null } }],
+        },
+        course: { name: "ピアノ初級" },
       });
-      prisma.tenant.findUnique.mockResolvedValue({ name: "テスト" });
-      prisma.user.findMany.mockResolvedValue([{ id: "u1", lineUserId: null }]);
 
-      await service.notifyCircularPublished("c1");
+      await service.sendLessonReminder("s1");
 
       expect(lineService.pushMessage).not.toHaveBeenCalled();
     });

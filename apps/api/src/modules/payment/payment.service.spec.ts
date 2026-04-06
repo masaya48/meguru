@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PaymentService } from "./payment.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { NotFoundException } from "@nestjs/common";
-import { PaymentStatus } from "@prisma/client";
+import { PaymentStatus } from "@meguru/db";
 
 describe("PaymentService", () => {
   let service: PaymentService;

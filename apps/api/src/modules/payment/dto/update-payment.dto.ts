@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
-import { PaymentStatus } from "@prisma/client";
+import { PaymentStatus } from "@meguru/db";
 
 export class UpdatePaymentDto {
   @IsEnum(PaymentStatus)
