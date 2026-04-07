@@ -23,11 +23,11 @@ LINE Platform → Next.js API Route (/api/line/webhook)
 
 ### イベント種別
 
-| イベント | 処理 |
-|---------|------|
-| follow | ユーザーの友達追加を記録 |
-| postback | 出欠回答の記録（data パラメータから circularId, questionId, answer を取得） |
-| message (text) | 未対応テキストへの案内メッセージ返信 |
+| イベント       | 処理                                                                        |
+| -------------- | --------------------------------------------------------------------------- |
+| follow         | ユーザーの友達追加を記録                                                    |
+| postback       | 出欠回答の記録（data パラメータから circularId, questionId, answer を取得） |
+| message (text) | 未対応テキストへの案内メッセージ返信                                        |
 
 ## 通知メッセージ
 
@@ -41,9 +41,7 @@ LINE Platform → Next.js API Route (/api/line/webhook)
     "type": "bubble",
     "header": {
       "type": "box",
-      "contents": [
-        { "type": "text", "text": "○○町内会", "size": "sm", "color": "#2563EB" }
-      ]
+      "contents": [{ "type": "text", "text": "○○町内会", "size": "sm", "color": "#2563EB" }]
     },
     "body": {
       "type": "box",

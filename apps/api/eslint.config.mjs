@@ -20,7 +20,7 @@ export default [
     rules: {
       "no-unused-vars": "off",
       "no-console": "off",
-      "eqeqeq": "off",
+      eqeqeq: "off",
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/explicit-function-return-type": "warn",
     },

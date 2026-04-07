@@ -96,9 +96,7 @@ export class TenantAwarePrismaService {
 
   async withTenant<T>(tenantId: string, fn: (tx: PrismaClient) => Promise<T>): Promise<T> {
     return this.prisma.$transaction(async (tx) => {
-      await tx.$executeRawUnsafe(
-        `SET LOCAL app.current_tenant_id = '${tenantId}'`
-      );
+      await tx.$executeRawUnsafe(`SET LOCAL app.current_tenant_id = '${tenantId}'`);
       return fn(tx);
     });
   }
@@ -106,6 +104,7 @@ export class TenantAwarePrismaService {
 ```
 
 **注意点:**
+
 - `SET LOCAL` はトランザクション内でのみ有効（コネクション汚染を防ぐ）
 - Prisma の `$transaction` 内で実行することで、同一コネクションが保証される
 - スーパーユーザー（マイグレーション用）はRLSをバイパスする
@@ -130,10 +129,10 @@ Phase 2と3は独立して実施可能。RLSを先に入れる方がセキュリ
 
 ## リスクと対策
 
-| リスク | 対策 |
-|--------|------|
-| Prisma + RLS のコネクション管理 | `SET LOCAL` + `$transaction` で汚染防止 |
-| ワイルドカードSSL | Vercelがネイティブ対応 |
-| ローカル開発の複雑化 | `*.localhost` で対応 |
-| RLS設定漏れ | マイグレーションスクリプトで全テーブルに自動適用 |
-| SQLインジェクション | tenantIdのUUIDバリデーション必須 |
+| リスク                          | 対策                                             |
+| ------------------------------- | ------------------------------------------------ |
+| Prisma + RLS のコネクション管理 | `SET LOCAL` + `$transaction` で汚染防止          |
+| ワイルドカードSSL               | Vercelがネイティブ対応                           |
+| ローカル開発の複雑化            | `*.localhost` で対応                             |
+| RLS設定漏れ                     | マイグレーションスクリプトで全テーブルに自動適用 |
+| SQLインジェクション             | tenantIdのUUIDバリデーション必須                 |

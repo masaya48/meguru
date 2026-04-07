@@ -2,8 +2,9 @@ import { Body, Controller, Post, Logger } from "@nestjs/common";
 import { Public } from "../../common/decorators/public.decorator";
 import type { WebhookEvent } from "@line/bot-sdk";
 import { LineService } from "./line.service";
+import { RescheduleService } from "../reschedule/reschedule.service";
+import { NotificationService } from "../notification/notification.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { AnswerService } from "../answer/answer.service";
 
 @Controller("line")
 export class LineWebhookController {
@@ -11,8 +12,9 @@ export class LineWebhookController {
 
   constructor(
     private readonly lineService: LineService,
+    private readonly rescheduleService: RescheduleService,
+    private readonly notificationService: NotificationService,
     private readonly prisma: PrismaService,
-    private readonly answerService: AnswerService,
   ) {}
 
   @Public()
@@ -35,68 +37,121 @@ export class LineWebhookController {
     switch (event.type) {
       case "follow":
         this.logger.log(`New follower: ${event.source.userId}`);
+        // TODO: Parent onboarding flow — link LINE user to manabun account
+        break;
+
+      case "message":
+        if (event.message.type === "text") {
+          await this.handleTextMessage(event);
+        }
         break;
 
       case "postback":
         await this.handlePostback(event);
         break;
-
-      case "message":
-        if (event.message.type === "text") {
-          await this.lineService.replyMessage(event.replyToken, [
-            {
-              type: "text",
-              text: "めぐるをご利用いただきありがとうございます。回覧の確認はアプリからお願いします。",
-            },
-          ]);
-        }
-        break;
     }
   }
 
-  private async handlePostback(event: Extract<WebhookEvent, { type: "postback" }>) {
-    const params = new URLSearchParams(event.postback.data);
-    const action = params.get("action");
+  private async handleTextMessage(event: WebhookEvent & { type: "message" }) {
+    if (event.message.type !== "text") return;
+    const text = event.message.text;
+    const appUrl = this.lineService.getAppUrl();
 
-    if (action !== "answer") return;
-
-    const circularId = params.get("circularId");
-    const questionId = params.get("questionId");
-    const answer = params.get("answer");
-
-    if (!circularId || !questionId || !answer) return;
-
-    const lineUserId = event.source.userId;
-    if (!lineUserId) return;
-
-    // Find user by lineUserId
-    const user = await this.prisma.user.findFirst({
-      where: { lineUserId },
-    });
-    if (!user) {
+    if (text.includes("欠席")) {
       await this.lineService.replyMessage(event.replyToken, [
         {
           type: "text",
-          text: "LINE連携が完了していません。アプリの設定画面からLINE連携を行ってください。",
+          text: `欠席連絡はWebから行ってください。\n${appUrl}`,
         },
       ]);
       return;
     }
 
-    try {
-      await this.answerService.submit(user.tenantId, user.id, {
-        questionId,
-        answer: decodeURIComponent(answer),
-      });
+    await this.lineService.replyMessage(event.replyToken, [
+      {
+        type: "text",
+        text: "manabun をご利用いただきありがとうございます。",
+      },
+    ]);
+  }
 
-      await this.lineService.replyMessage(event.replyToken, [
-        { type: "text", text: `回答を記録しました: ${decodeURIComponent(answer)}` },
-      ]);
-    } catch (error) {
-      this.logger.error(`Failed to submit answer via LINE`, error);
-      await this.lineService.replyMessage(event.replyToken, [
-        { type: "text", text: "回答の記録に失敗しました。アプリから回答してください。" },
-      ]);
+  private async handlePostback(event: WebhookEvent & { type: "postback" }) {
+    const data = new URLSearchParams(event.postback.data);
+    const action = data.get("action");
+    const requestId = data.get("requestId");
+
+    this.logger.log(`Postback: action=${action}, requestId=${requestId}`);
+
+    switch (action) {
+      case "reschedule_approve": {
+        if (!requestId) break;
+        try {
+          const request = await this.prisma.rescheduleRequest.findUnique({
+            where: { id: requestId },
+            select: { id: true, tenantId: true, originalSessionId: true, status: true },
+          });
+          if (!request || request.status !== "PENDING") {
+            await this.lineService.replyMessage(event.replyToken, [
+              { type: "text", text: "該当するリクエストが見つかりませんでした。" },
+            ]);
+            break;
+          }
+          // Quick-approve from LINE — mark as approved, teacher assigns target session later via web
+          await this.prisma.$transaction([
+            this.prisma.rescheduleRequest.update({
+              where: { id: requestId },
+              data: { status: "APPROVED" },
+            }),
+            this.prisma.lessonSession.update({
+              where: { id: request.originalSessionId },
+              data: { status: "RESCHEDULED" },
+            }),
+          ]);
+          await this.lineService.replyMessage(event.replyToken, [
+            {
+              type: "text",
+              text: "振替リクエストを承認しました。\nWebで振替先の日時を設定してください。",
+            },
+          ]);
+          await this.notificationService.sendRescheduleResult(requestId);
+        } catch (error) {
+          this.logger.error(`Failed to approve reschedule ${requestId}`, error);
+          await this.lineService.replyMessage(event.replyToken, [
+            { type: "text", text: "承認処理に失敗しました。Webから操作してください。" },
+          ]);
+        }
+        break;
+      }
+
+      case "reschedule_reject": {
+        if (!requestId) break;
+        try {
+          const request = await this.prisma.rescheduleRequest.findUnique({
+            where: { id: requestId },
+            select: { id: true, tenantId: true, status: true },
+          });
+          if (!request || request.status !== "PENDING") {
+            await this.lineService.replyMessage(event.replyToken, [
+              { type: "text", text: "該当するリクエストが見つかりませんでした。" },
+            ]);
+            break;
+          }
+          await this.rescheduleService.reject(request.tenantId, requestId);
+          await this.lineService.replyMessage(event.replyToken, [
+            { type: "text", text: "振替リクエストを却下しました。" },
+          ]);
+          await this.notificationService.sendRescheduleResult(requestId);
+        } catch (error) {
+          this.logger.error(`Failed to reject reschedule ${requestId}`, error);
+          await this.lineService.replyMessage(event.replyToken, [
+            { type: "text", text: "却下処理に失敗しました。Webから操作してください。" },
+          ]);
+        }
+        break;
+      }
+
+      default:
+        this.logger.warn(`Unknown postback action: ${action}`);
     }
   }
 }

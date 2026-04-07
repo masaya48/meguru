@@ -7,51 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ───
+
 enum Role {
-  ADMIN
-  MEMBER
+  TEACHER
+  PARENT
 }
 
 enum UserStatus {
   ACTIVE
   PENDING
-  INVITED
 }
 
-enum CircularType {
-  NOTICE
-  SURVEY
-  ATTENDANCE
+enum Genre {
+  PIANO
+  CALLIGRAPHY
+  STUDY
+  YOGA
+  SWIMMING
+  OTHER
 }
 
-enum CircularStatus {
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum ReportStatus {
   DRAFT
-  PUBLISHED
-  CLOSED
+  SENT
 }
 
-enum TargetType {
-  ALL
-  GROUP
-}
-
-enum QuestionType {
-  YES_NO
-  SINGLE_CHOICE
-  MULTI_CHOICE
-  FREE_TEXT
-}
-
-enum InvitationMethod {
-  EMAIL
-  LINE
-  QR
-}
-
-enum InvitationStatus {
+enum RescheduleStatus {
   PENDING
-  ACCEPTED
-  EXPIRED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  OVERDUE
 }
 
 enum NotificationChannel {
@@ -59,8 +74,10 @@ enum NotificationChannel {
 }
 
 enum NotificationType {
-  NEW_CIRCULAR
-  REMINDER
+  LESSON_REMINDER
+  REPORT
+  RESCHEDULE
+  PAYMENT_REMINDER
 }
 
 enum NotificationStatus {
@@ -69,20 +86,30 @@ enum NotificationStatus {
   FAILED
 }
 
+// ─── Models ───
+
 model Tenant {
   id        String   @id @default(uuid()) @db.Uuid
   name      String   @db.VarChar(100)
   slug      String   @unique @db.VarChar(50)
+  genre     Genre    @default(OTHER)
   plan      String   @default("free") @db.VarChar(20)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
-  groups      Group[]
-  circulars   Circular[]
-  templates   Template[]
-  invitations Invitation[]
-  notifications Notification[]
+  users              User[]
+  students           Student[]
+  courses            Course[]
+  lessonSlots        LessonSlot[]
+  lessonSessions     LessonSession[]
+  attendances        Attendance[]
+  lessonNotes        LessonNote[]
+  monthlySummaries   MonthlySummary[]
+  rescheduleRequests RescheduleRequest[]
+  payments           Payment[]
+  notifications      Notification[]
+  studentParents     StudentParent[]
+  studentCourses     StudentCourse[]
 
   @@map("tenants")
 }
@@ -90,24 +117,20 @@ model Tenant {
 model User {
   id           String     @id @default(uuid()) @db.Uuid
   tenantId     String     @db.Uuid
-  groupId      String?    @db.Uuid
   name         String     @db.VarChar(50)
   email        String?    @db.VarChar(255)
   phone        String?    @db.VarChar(20)
   lineUserId   String?    @db.VarChar(100)
   passwordHash String?    @db.VarChar(255)
-  role         Role       @default(MEMBER)
+  role         Role       @default(PARENT)
   status       UserStatus @default(PENDING)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  group         Group?           @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  createdCirculars Circular[]    @relation("CircularCreator")
-  reads         CircularRead[]
-  answers       CircularAnswer[]
-  invitations   Invitation[]     @relation("InvitedBy")
-  notifications Notification[]
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentParents     StudentParent[]
+  rescheduleRequests RescheduleRequest[]
+  notifications      Notification[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -115,147 +138,251 @@ model User {
   @@map("users")
 }
 
-model Group {
+model Student {
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @db.Uuid
+  name      String    @db.VarChar(50)
+  notes     String?   @db.Text
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentParents     StudentParent[]
+  studentCourses     StudentCourse[]
+  lessonSlots        LessonSlot[]
+  lessonSessions     LessonSession[]
+  attendances        Attendance[]
+  lessonNotes        LessonNote[]
+  monthlySummaries   MonthlySummary[]
+  rescheduleRequests RescheduleRequest[]
+  payments           Payment[]
+
+  @@index([tenantId])
+  @@map("students")
+}
+
+model StudentParent {
   id        String   @id @default(uuid()) @db.Uuid
   tenantId  String   @db.Uuid
-  name      String   @db.VarChar(50)
-  sortOrder Int      @default(0)
+  studentId String   @db.Uuid
+  userId    String   @db.Uuid
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  users  User[]
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, userId])
+  @@index([tenantId])
+  @@map("student_parents")
+}
+
+model Course {
+  id                    String    @id @default(uuid()) @db.Uuid
+  tenantId              String    @db.Uuid
+  name                  String    @db.VarChar(100)
+  monthlyFee            Int
+  maxMonthlyReschedules Int       @default(2)
+  deletedAt             DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  studentCourses   StudentCourse[]
+  lessonSlots      LessonSlot[]
+  lessonSessions   LessonSession[]
+  monthlySummaries MonthlySummary[]
+  payments         Payment[]
 
   @@index([tenantId])
-  @@map("groups")
+  @@map("courses")
 }
 
-model Circular {
-  id             String         @id @default(uuid()) @db.Uuid
-  tenantId       String         @db.Uuid
-  createdById    String         @db.Uuid
-  templateId     String?        @db.Uuid
-  title          String         @db.VarChar(200)
-  body           String         @db.Text
-  type           CircularType
-  status         CircularStatus @default(DRAFT)
-  targetType     TargetType     @default(ALL)
-  targetGroupIds String[]       @db.Uuid
-  deadline       DateTime?
-  publishedAt    DateTime?
-  closedAt       DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+model StudentCourse {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @db.Uuid
+  studentId String   @db.Uuid
+  courseId   String   @db.Uuid
+  createdAt DateTime @default(now())
 
-  tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdBy User               @relation("CircularCreator", fields: [createdById], references: [id])
-  template  Template?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  reads     CircularRead[]
-  questions CircularQuestion[]
-  notifications Notification[]
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  @@index([tenantId, status])
-  @@index([tenantId, createdAt(sort: Desc)])
-  @@map("circulars")
+  @@unique([studentId, courseId])
+  @@index([tenantId])
+  @@map("student_courses")
 }
 
-model CircularRead {
-  id         String   @id @default(uuid()) @db.Uuid
-  circularId String   @db.Uuid
-  userId     String   @db.Uuid
-  readAt     DateTime @default(now())
+model LessonSlot {
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @db.Uuid
+  courseId   String    @db.Uuid
+  studentId String    @db.Uuid
+  dayOfWeek DayOfWeek
+  startTime String    @db.VarChar(5)
+  endTime   String    @db.VarChar(5)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  circular Circular @relation(fields: [circularId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student        Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonSessions LessonSession[]
 
-  @@unique([circularId, userId])
-  @@index([circularId])
-  @@index([userId])
-  @@map("circular_reads")
+  @@index([tenantId, dayOfWeek])
+  @@map("lesson_slots")
 }
 
-model CircularQuestion {
-  id           String       @id @default(uuid()) @db.Uuid
-  circularId   String       @db.Uuid
-  questionText String       @db.VarChar(500)
-  type         QuestionType
-  options      Json?
-  sortOrder    Int          @default(0)
-  createdAt    DateTime     @default(now())
+model LessonSession {
+  id           String        @id @default(uuid()) @db.Uuid
+  tenantId     String        @db.Uuid
+  lessonSlotId String?       @db.Uuid
+  studentId    String        @db.Uuid
+  courseId      String        @db.Uuid
+  date         DateTime      @db.Date
+  startTime    String        @db.VarChar(5)
+  endTime      String        @db.VarChar(5)
+  status       SessionStatus @default(SCHEDULED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  circular Circular         @relation(fields: [circularId], references: [id], onDelete: Cascade)
-  answers  CircularAnswer[]
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lessonSlot LessonSlot? @relation(fields: [lessonSlotId], references: [id], onDelete: SetNull)
+  student    Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  @@index([circularId])
-  @@map("circular_questions")
+  attendance         Attendance?
+  lessonNote         LessonNote?
+  originalReschedule RescheduleRequest[] @relation("OriginalSession")
+  targetReschedule   RescheduleRequest[] @relation("TargetSession")
+
+  @@index([tenantId, date])
+  @@index([studentId, date])
+  @@map("lesson_sessions")
 }
 
-model CircularAnswer {
-  id         String   @id @default(uuid()) @db.Uuid
-  questionId String   @db.Uuid
-  userId     String   @db.Uuid
-  answer     Json
-  answeredAt DateTime @default(now())
+model Attendance {
+  id              String           @id @default(uuid()) @db.Uuid
+  tenantId        String           @db.Uuid
+  lessonSessionId String           @unique @db.Uuid
+  studentId       String           @db.Uuid
+  status          AttendanceStatus
+  note            String?          @db.VarChar(500)
+  createdAt       DateTime         @default(now())
 
-  question CircularQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([questionId, userId])
-  @@index([questionId])
-  @@index([userId])
-  @@map("circular_answers")
-}
-
-model Template {
-  id           String       @id @default(uuid()) @db.Uuid
-  tenantId     String       @db.Uuid
-  name         String       @db.VarChar(100)
-  description  String?      @db.VarChar(500)
-  bodyTemplate String       @db.Text
-  type         CircularType
-  questions    Json?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  circulars Circular[]
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lessonSession LessonSession @relation(fields: [lessonSessionId], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
-  @@map("templates")
+  @@map("attendances")
 }
 
-model Invitation {
-  id          String           @id @default(uuid()) @db.Uuid
-  tenantId    String           @db.Uuid
-  invitedById String           @db.Uuid
-  token       String           @unique @db.VarChar(255)
-  method      InvitationMethod
-  status      InvitationStatus @default(PENDING)
-  expiresAt   DateTime
-  createdAt   DateTime         @default(now())
+model LessonNote {
+  id              String       @id @default(uuid()) @db.Uuid
+  tenantId        String       @db.Uuid
+  lessonSessionId String       @unique @db.Uuid
+  studentId       String       @db.Uuid
+  teacherMemo     String       @db.Text
+  aiReport        String?      @db.Text
+  reportStatus    ReportStatus @default(DRAFT)
+  sentAt          DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
-  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  invitedBy User   @relation("InvitedBy", fields: [invitedById], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lessonSession LessonSession @relation(fields: [lessonSessionId], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@index([token])
+  @@index([tenantId, reportStatus])
+  @@map("lesson_notes")
+}
+
+model MonthlySummary {
+  id            String       @id @default(uuid()) @db.Uuid
+  tenantId      String       @db.Uuid
+  studentId     String       @db.Uuid
+  courseId       String       @db.Uuid
+  year          Int
+  month         Int
+  aiSummary     String       @db.Text
+  editedSummary String?      @db.Text
+  reportStatus  ReportStatus @default(DRAFT)
+  sentAt        DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, studentId, courseId, year, month])
+  @@map("monthly_summaries")
+}
+
+model RescheduleRequest {
+  id                 String           @id @default(uuid()) @db.Uuid
+  tenantId           String           @db.Uuid
+  originalSessionId  String           @db.Uuid
+  requestedSessionId String?          @db.Uuid
+  studentId          String           @db.Uuid
+  requestedById      String           @db.Uuid
+  status             RescheduleStatus @default(PENDING)
+  suggestedSlots     Json?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  originalSession  LessonSession  @relation("OriginalSession", fields: [originalSessionId], references: [id], onDelete: Cascade)
+  requestedSession LessonSession? @relation("TargetSession", fields: [requestedSessionId], references: [id], onDelete: SetNull)
+  student          Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  requestedBy      User           @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+
   @@index([tenantId, status])
-  @@map("invitations")
+  @@index([studentId])
+  @@map("reschedule_requests")
+}
+
+model Payment {
+  id        String        @id @default(uuid()) @db.Uuid
+  tenantId  String        @db.Uuid
+  studentId String        @db.Uuid
+  courseId   String        @db.Uuid
+  year      Int
+  month     Int
+  amount    Int
+  status    PaymentStatus @default(UNPAID)
+  paidAt    DateTime?
+  note      String?       @db.VarChar(500)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId, year, month])
+  @@index([tenantId, year, month])
+  @@map("payments")
 }
 
 model Notification {
-  id         String             @id @default(uuid()) @db.Uuid
-  tenantId   String             @db.Uuid
-  userId     String             @db.Uuid
-  circularId String             @db.Uuid
-  channel    NotificationChannel
-  type       NotificationType
-  status     NotificationStatus @default(PENDING)
-  sentAt     DateTime?
-  createdAt  DateTime           @default(now())
+  id            String             @id @default(uuid()) @db.Uuid
+  tenantId      String             @db.Uuid
+  userId        String             @db.Uuid
+  channel       NotificationChannel
+  type          NotificationType
+  status        NotificationStatus @default(PENDING)
+  referenceId   String?            @db.Uuid
+  referenceType String?            @db.VarChar(50)
+  sentAt        DateTime?
+  createdAt     DateTime           @default(now())
 
-  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  circular Circular @relation(fields: [circularId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, status])
   @@index([userId, status])

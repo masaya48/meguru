@@ -1,135 +1,40 @@
-import type { FlexBubble } from "@line/bot-sdk/dist/messaging-api/model/flexBubble";
-import type { FlexMessage } from "@line/bot-sdk/dist/messaging-api/model/flexMessage";
+import type { FlexMessage, TextMessage } from "@line/bot-sdk/dist/messaging-api/model/models";
 
-interface CircularNotification {
-  tenantName: string;
-  title: string;
-  type: string;
-  circularId: string;
-  appUrl: string;
-  question?: {
-    id: string;
-    options: string[];
-  };
-}
+const PRIMARY_COLOR = "#2D6A4F";
 
-const TYPE_LABELS: Record<string, string> = {
-  NOTICE: "お知らせ",
-  SURVEY: "アンケート",
-  ATTENDANCE: "出欠確認",
-};
-
-export function buildCircularNotification(data: CircularNotification): FlexMessage {
-  const footer: FlexBubble["footer"] = {
-    type: "box",
-    layout: "vertical",
-    spacing: "sm",
-    contents: [
-      {
-        type: "button",
-        action: {
-          type: "uri",
-          label: "見る",
-          uri: `${data.appUrl}/circular/${data.circularId}`,
-        },
-        style: "primary",
-        color: "#2D6A4F",
-      },
-    ],
-  };
-
-  // Add postback buttons for ATTENDANCE with YES_NO question
-  if (data.type === "ATTENDANCE" && data.question) {
-    footer.contents = [
-      {
-        type: "box",
-        layout: "horizontal",
-        spacing: "sm",
-        contents: [
-          {
-            type: "button",
-            action: {
-              type: "postback",
-              label: `⭕ ${data.question.options[0] ?? "参加する"}`,
-              data: `action=answer&circularId=${data.circularId}&questionId=${data.question.id}&answer=${encodeURIComponent(data.question.options[0] ?? "参加する")}`,
-            },
-            style: "primary",
-            color: "#16A34A",
-          },
-          {
-            type: "button",
-            action: {
-              type: "postback",
-              label: `❌ ${data.question.options[1] ?? "不参加"}`,
-              data: `action=answer&circularId=${data.circularId}&questionId=${data.question.id}&answer=${encodeURIComponent(data.question.options[1] ?? "不参加")}`,
-            },
-            style: "primary",
-            color: "#DC2626",
-          },
-        ],
-      },
-      {
-        type: "button",
-        action: {
-          type: "uri",
-          label: "詳細を見る",
-          uri: `${data.appUrl}/circular/${data.circularId}`,
-        },
-        style: "link",
-      },
-    ];
-  }
-
-  const bubble: FlexBubble = {
-    type: "bubble",
-    header: {
-      type: "box",
-      layout: "vertical",
-      contents: [{ type: "text", text: data.tenantName, size: "sm", color: "#2D6A4F" }],
-    },
-    body: {
-      type: "box",
-      layout: "vertical",
-      contents: [
-        { type: "text", text: data.title, weight: "bold", size: "lg", wrap: true },
-        { type: "text", text: TYPE_LABELS[data.type] ?? data.type, size: "sm", color: "#6B7280" },
-      ],
-    },
-    footer,
-  };
-
+export function buildLessonReportMessage(params: {
+  studentName: string;
+  courseName: string;
+  date: string;
+  reportText: string;
+  detailUrl: string;
+}): FlexMessage {
   return {
     type: "flex",
-    altText: `【${data.tenantName}】${data.title}`,
-    contents: bubble,
-  };
-}
-
-export function buildReminderMessage(
-  tenantName: string,
-  title: string,
-  circularId: string,
-  appUrl: string,
-): FlexMessage {
-  return {
-    type: "flex",
-    altText: `【${tenantName}】回答リマインド: ${title}`,
+    altText: `${params.studentName}さんのレッスンレポート`,
     contents: {
       type: "bubble",
-      body: {
+      header: {
         type: "box",
         layout: "vertical",
         contents: [
-          { type: "text", text: "回答リマインド", size: "sm", color: "#E76F51", weight: "bold" },
-          { type: "text", text: title, weight: "bold", size: "lg", wrap: true, margin: "md" },
+          { type: "text", text: "\u{1F3B5} レッスンレポート", weight: "bold", size: "lg" },
+        ],
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
           {
             type: "text",
-            text: `${tenantName}からの回覧に未回答です。`,
+            text: `${params.studentName} / ${params.courseName}`,
             size: "sm",
-            color: "#6B7280",
-            margin: "md",
-            wrap: true,
+            color: "#888888",
           },
+          { type: "text", text: params.date, size: "sm", color: "#888888" },
+          { type: "separator" },
+          { type: "text", text: params.reportText, wrap: true, size: "md" },
         ],
       },
       footer: {
@@ -138,9 +43,182 @@ export function buildReminderMessage(
         contents: [
           {
             type: "button",
-            action: { type: "uri", label: "回答する", uri: `${appUrl}/circular/${circularId}` },
             style: "primary",
-            color: "#E76F51",
+            color: PRIMARY_COLOR,
+            action: { type: "uri", label: "詳しく見る", uri: params.detailUrl },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function buildLessonReminderMessage(params: {
+  studentName: string;
+  courseName: string;
+  date: string;
+  startTime: string;
+}): TextMessage {
+  return {
+    type: "text",
+    text: [
+      `\u{1F514} レッスンリマインダー`,
+      ``,
+      `${params.studentName}さんの${params.courseName}レッスン`,
+      `\u{1F4C5} ${params.date} ${params.startTime}〜`,
+      ``,
+      `忘れ物がないようご準備ください。`,
+    ].join("\n"),
+  };
+}
+
+export function buildRescheduleRequestMessage(params: {
+  studentName: string;
+  originalDate: string;
+  originalTime: string;
+  approveData: string;
+  rejectData: string;
+}): FlexMessage {
+  return {
+    type: "flex",
+    altText: `${params.studentName}さんの振替リクエスト`,
+    contents: {
+      type: "bubble",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [{ type: "text", text: "\u{1F504} 振替リクエスト", weight: "bold", size: "lg" }],
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          { type: "text", text: `生徒: ${params.studentName}`, size: "md", wrap: true },
+          {
+            type: "text",
+            text: `元の日時: ${params.originalDate} ${params.originalTime}`,
+            size: "sm",
+            color: "#888888",
+          },
+          { type: "separator" },
+          { type: "text", text: "承認しますか？", size: "sm", color: "#666666" },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "horizontal",
+        spacing: "md",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            color: PRIMARY_COLOR,
+            action: { type: "postback", label: "承認", data: params.approveData },
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "postback", label: "却下", data: params.rejectData },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function buildRescheduleResultMessage(params: {
+  studentName: string;
+  approved: boolean;
+  newDate?: string;
+  newTime?: string;
+}): TextMessage {
+  if (params.approved) {
+    const schedule = params.newDate
+      ? `\n新しい日時: ${params.newDate} ${params.newTime ?? ""}`
+      : "";
+    return {
+      type: "text",
+      text: `\u2705 ${params.studentName}さんの振替が承認されました。${schedule}\n\n詳細はアプリでご確認ください。`,
+    };
+  }
+  return {
+    type: "text",
+    text: `\u274C ${params.studentName}さんの振替リクエストが却下されました。\n\n詳細はアプリでご確認ください。`,
+  };
+}
+
+export function buildPaymentReminderMessage(params: {
+  studentName: string;
+  courseName: string;
+  amount: number;
+  month: string;
+}): TextMessage {
+  return {
+    type: "text",
+    text: [
+      `\u{1F4B0} お支払いリマインダー`,
+      ``,
+      `${params.studentName}さん / ${params.courseName}`,
+      `${params.month}分: ¥${params.amount.toLocaleString()}`,
+      ``,
+      `お支払いをお願いいたします。`,
+    ].join("\n"),
+  };
+}
+
+export function buildAbsenceConfirmMessage(params: {
+  studentName: string;
+  date: string;
+  time: string;
+  rescheduleData: string;
+  noRescheduleData: string;
+}): FlexMessage {
+  return {
+    type: "flex",
+    altText: `${params.studentName}さんの欠席連絡を受け付けました`,
+    contents: {
+      type: "bubble",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [{ type: "text", text: "\u{1F4DD} 欠席受付", weight: "bold", size: "lg" }],
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          { type: "text", text: `${params.studentName}さん`, size: "md" },
+          {
+            type: "text",
+            text: `${params.date} ${params.time}`,
+            size: "sm",
+            color: "#888888",
+          },
+          { type: "separator" },
+          { type: "text", text: "振替を希望しますか？", size: "sm", color: "#666666" },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "horizontal",
+        spacing: "md",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            color: PRIMARY_COLOR,
+            action: { type: "postback", label: "振替希望", data: params.rescheduleData },
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: {
+              type: "postback",
+              label: "振替なし",
+              data: params.noRescheduleData,
+            },
           },
         ],
       },

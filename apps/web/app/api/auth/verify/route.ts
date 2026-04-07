@@ -44,10 +44,6 @@ export async function GET(request: NextRequest) {
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  // Redirect based on role
-  const payload = parseJwt(accessToken);
-  if (payload?.role === "ADMIN") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Redirect based on role — all roles go to "/" where route-group layout handles auth
   return NextResponse.redirect(new URL("/", request.url));
 }

@@ -5,10 +5,5 @@
     "no-console": "warn",
     "eqeqeq": "error"
   },
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    ".next",
-    "coverage"
-  ]
+  "ignorePatterns": ["node_modules", "dist", ".next", "coverage"]
 }

@@ -13,6 +13,7 @@
 **shadcn/ui** を採用する。
 
 初期化コマンド:
+
 ```bash
 pnpm dlx shadcn@latest init --preset b2D30ZsUV --template next --monorepo
 ```

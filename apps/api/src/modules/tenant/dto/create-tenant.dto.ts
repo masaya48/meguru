@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, MaxLength, Matches } from "class-validator";
+import { IsString, IsNotEmpty, MaxLength, Matches, IsEnum, IsOptional } from "class-validator";
+import { Genre } from "@meguru/db";
 
 export class CreateTenantDto {
   @IsString()
@@ -13,4 +14,8 @@ export class CreateTenantDto {
     message: "slug must contain only lowercase letters, numbers, and hyphens",
   })
   slug!: string;
+
+  @IsEnum(Genre)
+  @IsOptional()
+  genre?: Genre;
 }

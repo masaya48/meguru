@@ -1,3 +1,8 @@
+---
+name: check
+description: プロジェクト全体の品質チェック（lint + format + test）を実行する。
+---
+
 プロジェクト全体の品質チェックを実行する。
 
 1. `pnpm format:check` — フォーマット確認

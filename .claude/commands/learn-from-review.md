@@ -1,3 +1,9 @@
+---
+name: learn-from-review
+description: PR のレビューコメントを読み込み、再発防止のためルールに反映する。
+argument-hint: "[pr-number]"
+---
+
 PR のレビューコメントを読み込み、再発防止のためルールに反映する。
 
 引数: PR番号 (例: `/learn-from-review 15`)

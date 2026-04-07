@@ -1,3 +1,8 @@
+---
+name: seed
+description: テストデータを投入する。
+---
+
 テストデータを投入する。
 
 1. `pnpm db:seed` を実行
