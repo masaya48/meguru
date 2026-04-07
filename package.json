@@ -1,6 +1,7 @@
 {
   "name": "meguru",
   "private": true,
+  "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev": "bash scripts/setup-env.sh && pnpm docker:up && pnpm db:generate && pnpm db:migrate && pnpm --filter @meguru/api dev & pnpm --filter @meguru/web dev & wait",
     "setup": "pnpm install && bash scripts/setup-env.sh && pnpm docker:up && pnpm db:generate && pnpm db:migrate && pnpm db:seed",
