@@ -6,7 +6,7 @@ export default [
     rules: {
       "no-unused-vars": "off",
       "no-console": "off",
-      "eqeqeq": "off",
+      eqeqeq: "off",
     },
   },
 ];

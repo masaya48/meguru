@@ -1,3 +1,9 @@
+---
+name: work-on-issue
+description: GitHub Issue を読み込み、ブランチ作成から PR 作成まで一気通貫で実施する。
+argument-hint: "[issue-number]"
+---
+
 GitHub Issue を読み込み、ブランチ作成から PR 作成まで一気通貫で実施する。
 
 引数: Issue番号 (例: `/work-on-issue 42`)

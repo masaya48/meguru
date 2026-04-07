@@ -1,3 +1,8 @@
+---
+name: audit-code
+description: コードベースの品質を監査し、tech-debt Issue を作成する。
+---
+
 コードベースの品質を監査し、tech-debt Issue を作成する。
 
 ## 手順

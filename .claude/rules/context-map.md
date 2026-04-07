@@ -3,68 +3,84 @@
 ファイルパスに応じて、作業前に関連ドキュメントを読むこと。
 
 ## apps/api/
+
 - docs/adr/001-tech-stack.md (NestJS選定理由)
 - docs/adr/004-multi-tenancy.md (テナント分離)
 - docs/spec/001-system-architecture.md (モジュール構成)
 
 ## apps/api/src/modules/auth/
+
 - docs/adr/003-authentication.md (認証方式)
 - docs/adr/009-simplified-auth.md (簡易ログイン設計)
 
-## apps/api/src/modules/line/ or **/line*
+## apps/api/src/modules/line/ or \*_/line_
+
 - docs/adr/005-line-integration.md
 - docs/spec/004-line-integration.md
 
 ## apps/web/
+
 - docs/adr/006-ui-components.md (UIコンポーネント選定)
 - docs/spec/003-ui-spec.md (画面仕様)
 - docs/design-system/design-system.md (デザインシステム)
 
 ## apps/web/app/(teacher)/
+
 - docs/spec/003-ui-spec.md (先生向け画面仕様)
 - 先生ロール: JWT payload.role === "TEACHER"
 - TeacherBottomNav, TeacherLayout パターンに従う
 
 ## apps/web/app/(parent)/
+
 - docs/spec/003-ui-spec.md (保護者向け画面仕様)
 - 保護者ロール: JWT payload.role === "PARENT"
 - シンプルヘッダーのみ、BottomNav なし
 
 ## apps/api/src/modules/lesson/
+
 - docs/spec/002-data-model.md (LessonSlot, LessonSession モデル)
 - docs/spec/001-system-architecture.md (モジュール構成)
 
 ## apps/api/src/modules/attendance/
+
 - docs/spec/002-data-model.md (Attendance モデル)
 
 ## apps/api/src/modules/payment/
+
 - docs/spec/002-data-model.md (Payment モデル)
 
 ## apps/api/src/modules/absence/
+
 - docs/spec/002-data-model.md (Absence モデル)
 
 ## apps/api/src/modules/lesson-note/ or apps/api/src/modules/monthly-summary/
+
 - docs/spec/002-data-model.md (LessonNote, MonthlySummary モデル)
 
 ## packages/db/
+
 - docs/spec/002-data-model.md (データモデル)
 - docs/adr/004-multi-tenancy.md (tenantIdフィルタ)
 - docs/adr/008-subdomain-tenant-and-rls.md (RLS設計)
 
 ## テナント関連の変更
+
 - docs/adr/004-multi-tenancy.md
 - docs/adr/008-subdomain-tenant-and-rls.md
 
 ## package.json, .github/workflows/, scripts/
+
 - AGENTS.md (ブランチ戦略、コマンドインデックス)
 - docs/adr/007-local-dev-setup.md (環境セットアップ)
 
-## .env.example, .env.* 関連
+## .env.example, .env.\* 関連
+
 - scripts/setup-env.sh が .env 自動生成
 - `pnpm setup` で初期セットアップ完了
 - `pnpm dev` の前に自動実行
 
 ## CI/CD 変更時
+
 - .github/workflows/lint-and-format.yml
 - .github/workflows/typecheck.yml (新規)
 - .github/workflows/test.yml (新規)

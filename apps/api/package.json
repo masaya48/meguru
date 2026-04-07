@@ -1,7 +1,7 @@
 {
   "name": "@meguru/api",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
@@ -54,12 +54,20 @@
     "typescript": "^5.7.0"
   },
   "jest": {
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
     "moduleFileExtensions": [
       "js",
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^@meguru/db$": "<rootDir>/../../../packages/db/src"
+    },
     "rootDir": "src",
+    "testEnvironment": "node",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": [
@@ -68,14 +76,6 @@
           "diagnostics": false
         }
       ]
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^@meguru/db$": "<rootDir>/../../../packages/db/src"
     }
   }
 }

@@ -14,10 +14,10 @@ Docker Composeで開発用のPostgreSQLとMailHogを提供する。
 
 ## 構成
 
-| サービス | イメージ | ポート | 用途 |
-|---------|---------|--------|------|
-| db | postgres:16-alpine | 5432 | メインDB |
-| mailhog | mailhog/mailhog | 1025 (SMTP), 8025 (Web UI) | 開発用メール確認 |
+| サービス | イメージ           | ポート                     | 用途             |
+| -------- | ------------------ | -------------------------- | ---------------- |
+| db       | postgres:16-alpine | 5432                       | メインDB         |
+| mailhog  | mailhog/mailhog    | 1025 (SMTP), 8025 (Web UI) | 開発用メール確認 |
 
 ## 使い方
 

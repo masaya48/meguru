@@ -42,6 +42,7 @@ meguru/
 ### Task 1: ルートpackage.json と pnpm-workspace.yaml の作成
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 
@@ -77,6 +78,7 @@ packages:
 - [ ] **Step 3: 各workspace用の最小package.jsonを作成**
 
 `apps/web/package.json`:
+
 ```json
 {
   "name": "@meguru/web",
@@ -90,6 +92,7 @@ packages:
 ```
 
 `apps/api/package.json`:
+
 ```json
 {
   "name": "@meguru/api",
@@ -103,6 +106,7 @@ packages:
 ```
 
 `packages/shared/package.json`:
+
 ```json
 {
   "name": "@meguru/shared",
@@ -112,6 +116,7 @@ packages:
 ```
 
 `packages/db/package.json`:
+
 ```json
 {
   "name": "@meguru/db",
@@ -132,6 +137,7 @@ git commit -m "chore: initialize pnpm workspace structure"
 ### Task 2: oxlint + oxfmt のインストールと設定
 
 **Files:**
+
 - Modify: `package.json` (devDependencies追加)
 - Create: `oxlintrc.json`
 
@@ -148,6 +154,7 @@ pnpm search oxfmt
 ```
 
 公開されていれば:
+
 ```bash
 pnpm add -Dw oxfmt
 ```
@@ -164,18 +171,14 @@ pnpm add -Dw oxfmt
     "no-console": "warn",
     "eqeqeq": "error"
   },
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    ".next",
-    "coverage"
-  ]
+  "ignorePatterns": ["node_modules", "dist", ".next", "coverage"]
 }
 ```
 
 - [ ] **Step 3: 動作確認用のテストファイルを作成**
 
 `apps/web/src/index.ts`:
+
 ```typescript
 const unused = "this should trigger no-unused-vars";
 
@@ -225,6 +228,7 @@ git commit -m "chore: add oxlint and oxfmt with base configuration"
 ### Task 3: ESLint 補完設定（apps/web + apps/api）
 
 **Files:**
+
 - Modify: `package.json` (devDependencies追加)
 - Modify: `apps/web/package.json` (devDependencies追加)
 - Modify: `apps/api/package.json` (devDependencies追加)
@@ -258,7 +262,7 @@ export default [
       // oxlintがカバーするルールをoff
       "no-unused-vars": "off",
       "no-console": "off",
-      "eqeqeq": "off",
+      eqeqeq: "off",
     },
   },
 ];
@@ -288,7 +292,7 @@ export default [
       // oxlintがカバーするルールをoff
       "no-unused-vars": "off",
       "no-console": "off",
-      "eqeqeq": "off",
+      eqeqeq: "off",
 
       // NestJS/TypeScript固有
       "@typescript-eslint/no-floating-promises": "error",
@@ -318,6 +322,7 @@ git commit -m "chore: add ESLint with Next.js and NestJS specific rules"
 ### Task 4: lefthook の導入
 
 **Files:**
+
 - Modify: `package.json` (devDependencies追加)
 - Create: `lefthook.yml`
 
@@ -385,6 +390,7 @@ git commit -m "chore: add lefthook for pre-commit linting and formatting"
 ### Task 5: GitHub Actions CI 設定
 
 **Files:**
+
 - Create: `.github/workflows/lint.yml`
 
 - [ ] **Step 1: .github/workflows/lint.ymlを作成**
@@ -435,6 +441,7 @@ git commit -m "ci: add lint and format check workflow"
 ### Task 6: ADR更新
 
 **Files:**
+
 - Modify: `docs/adr/002-monorepo-and-tooling.md`
 
 - [ ] **Step 1: ADR-002にlint/format方針を追記**
@@ -442,7 +449,6 @@ git commit -m "ci: add lint and format check workflow"
 `docs/adr/002-monorepo-and-tooling.md` の末尾に以下を追加:
 
 ```markdown
-
 ## Lint・Format
 
 - **oxlint** をメインlinterとして採用（高速、ESLintと互換性のあるルール）
