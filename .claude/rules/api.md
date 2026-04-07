@@ -7,4 +7,4 @@
 - 認証: JWT Bearer Token。@Public() で公開エンドポイント指定
 - DTO は class-validator + class-transformer でバリデーション
 - エラーレスポンス: `{ statusCode, message, error }` 形式
-- テストは *.spec.ts に co-locate。Service のユニットテストを必須とする
+- テストは \*.spec.ts に co-locate。Service のユニットテストを必須とする

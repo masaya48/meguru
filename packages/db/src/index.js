@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationStatus =
   exports.NotificationType =
   exports.NotificationChannel =
-  exports.InvitationStatus =
-  exports.InvitationMethod =
-  exports.QuestionType =
-  exports.TargetType =
-  exports.CircularStatus =
-  exports.CircularType =
+  exports.PaymentStatus =
+  exports.RescheduleStatus =
+  exports.ReportStatus =
+  exports.AttendanceStatus =
+  exports.SessionStatus =
+  exports.DayOfWeek =
+  exports.Genre =
   exports.UserStatus =
   exports.Role =
   exports.PrismaClient =
@@ -32,40 +33,46 @@ Object.defineProperty(exports, "UserStatus", {
     return client_1.UserStatus;
   },
 });
-Object.defineProperty(exports, "CircularType", {
+Object.defineProperty(exports, "Genre", {
   enumerable: true,
   get: function () {
-    return client_1.CircularType;
+    return client_1.Genre;
   },
 });
-Object.defineProperty(exports, "CircularStatus", {
+Object.defineProperty(exports, "DayOfWeek", {
   enumerable: true,
   get: function () {
-    return client_1.CircularStatus;
+    return client_1.DayOfWeek;
   },
 });
-Object.defineProperty(exports, "TargetType", {
+Object.defineProperty(exports, "SessionStatus", {
   enumerable: true,
   get: function () {
-    return client_1.TargetType;
+    return client_1.SessionStatus;
   },
 });
-Object.defineProperty(exports, "QuestionType", {
+Object.defineProperty(exports, "AttendanceStatus", {
   enumerable: true,
   get: function () {
-    return client_1.QuestionType;
+    return client_1.AttendanceStatus;
   },
 });
-Object.defineProperty(exports, "InvitationMethod", {
+Object.defineProperty(exports, "ReportStatus", {
   enumerable: true,
   get: function () {
-    return client_1.InvitationMethod;
+    return client_1.ReportStatus;
   },
 });
-Object.defineProperty(exports, "InvitationStatus", {
+Object.defineProperty(exports, "RescheduleStatus", {
   enumerable: true,
   get: function () {
-    return client_1.InvitationStatus;
+    return client_1.RescheduleStatus;
+  },
+});
+Object.defineProperty(exports, "PaymentStatus", {
+  enumerable: true,
+  get: function () {
+    return client_1.PaymentStatus;
   },
 });
 Object.defineProperty(exports, "NotificationChannel", {

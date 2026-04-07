@@ -40,222 +40,222 @@ NotificationStatus: PENDING / SENT / FAILED
 
 **Tenant（教室）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| name | VARCHAR(100) | 教室名 |
-| slug | VARCHAR(50) | URL用スラッグ（UNIQUE） |
-| genre | Genre | 教室ジャンル |
-| plan | VARCHAR(20) | 料金プラン（default: "free"） |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム    | 型           | 説明                          |
+| --------- | ------------ | ----------------------------- |
+| id        | UUID         | PK                            |
+| name      | VARCHAR(100) | 教室名                        |
+| slug      | VARCHAR(50)  | URL用スラッグ（UNIQUE）       |
+| genre     | Genre        | 教室ジャンル                  |
+| plan      | VARCHAR(20)  | 料金プラン（default: "free"） |
+| createdAt | TIMESTAMP    |                               |
+| updatedAt | TIMESTAMP    |                               |
 
 **User（先生 / 保護者）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| name | VARCHAR(50) | |
-| email | VARCHAR(255) | NULLable（保護者はメール不要の場合あり） |
-| phone | VARCHAR(20) | NULLable |
-| lineUserId | VARCHAR(100) | NULLable |
-| passwordHash | VARCHAR(255) | NULLable（保護者はパスワード不要） |
-| role | Role | TEACHER / PARENT |
-| status | UserStatus | ACTIVE / PENDING |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム       | 型           | 説明                                     |
+| ------------ | ------------ | ---------------------------------------- |
+| id           | UUID         | PK                                       |
+| tenantId     | UUID         | FK → Tenant                              |
+| name         | VARCHAR(50)  |                                          |
+| email        | VARCHAR(255) | NULLable（保護者はメール不要の場合あり） |
+| phone        | VARCHAR(20)  | NULLable                                 |
+| lineUserId   | VARCHAR(100) | NULLable                                 |
+| passwordHash | VARCHAR(255) | NULLable（保護者はパスワード不要）       |
+| role         | Role         | TEACHER / PARENT                         |
+| status       | UserStatus   | ACTIVE / PENDING                         |
+| createdAt    | TIMESTAMP    |                                          |
+| updatedAt    | TIMESTAMP    |                                          |
 
 インデックス: `[tenantId, email]` UNIQUE, `[tenantId]`, `[lineUserId]`
 
 **Student（生徒）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| name | VARCHAR(50) | |
-| notes | TEXT | 先生用メモ（アレルギー等） |
-| deletedAt | TIMESTAMP | NULLable、論理削除用 |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム    | 型          | 説明                       |
+| --------- | ----------- | -------------------------- |
+| id        | UUID        | PK                         |
+| tenantId  | UUID        | FK → Tenant                |
+| name      | VARCHAR(50) |                            |
+| notes     | TEXT        | 先生用メモ（アレルギー等） |
+| deletedAt | TIMESTAMP   | NULLable、論理削除用       |
+| createdAt | TIMESTAMP   |                            |
+| updatedAt | TIMESTAMP   |                            |
 
 インデックス: `[tenantId]`
 
 **StudentParent（生徒↔保護者紐づけ）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| studentId | UUID | FK → Student |
-| userId | UUID | FK → User（保護者） |
-| createdAt | TIMESTAMP | |
+| カラム    | 型        | 説明                |
+| --------- | --------- | ------------------- |
+| id        | UUID      | PK                  |
+| tenantId  | UUID      | FK → Tenant         |
+| studentId | UUID      | FK → Student        |
+| userId    | UUID      | FK → User（保護者） |
+| createdAt | TIMESTAMP |                     |
 
 インデックス: `[studentId, userId]` UNIQUE, `[tenantId]`
 
 **Course（コース）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| name | VARCHAR(100) | 例: ピアノ初級 |
-| monthlyFee | INT | 月謝額（円） |
-| maxMonthlyReschedules | INT | 月間振替上限回数（default: 2） |
-| deletedAt | TIMESTAMP | NULLable、論理削除用 |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム                | 型           | 説明                           |
+| --------------------- | ------------ | ------------------------------ |
+| id                    | UUID         | PK                             |
+| tenantId              | UUID         | FK → Tenant                    |
+| name                  | VARCHAR(100) | 例: ピアノ初級                 |
+| monthlyFee            | INT          | 月謝額（円）                   |
+| maxMonthlyReschedules | INT          | 月間振替上限回数（default: 2） |
+| deletedAt             | TIMESTAMP    | NULLable、論理削除用           |
+| createdAt             | TIMESTAMP    |                                |
+| updatedAt             | TIMESTAMP    |                                |
 
 インデックス: `[tenantId]`
 
 **StudentCourse（生徒↔コース紐づけ）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| studentId | UUID | FK → Student |
-| courseId | UUID | FK → Course |
-| createdAt | TIMESTAMP | |
+| カラム    | 型        | 説明         |
+| --------- | --------- | ------------ |
+| id        | UUID      | PK           |
+| tenantId  | UUID      | FK → Tenant  |
+| studentId | UUID      | FK → Student |
+| courseId  | UUID      | FK → Course  |
+| createdAt | TIMESTAMP |              |
 
 インデックス: `[studentId, courseId]` UNIQUE, `[tenantId]`
 
 **LessonSlot（定期レッスン枠）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| courseId | UUID | FK → Course |
-| studentId | UUID | FK → Student |
-| dayOfWeek | DayOfWeek | 曜日 |
-| startTime | TIME | 開始時刻 |
-| endTime | TIME | 終了時刻 |
+| カラム    | 型        | 説明                 |
+| --------- | --------- | -------------------- |
+| id        | UUID      | PK                   |
+| tenantId  | UUID      | FK → Tenant          |
+| courseId  | UUID      | FK → Course          |
+| studentId | UUID      | FK → Student         |
+| dayOfWeek | DayOfWeek | 曜日                 |
+| startTime | TIME      | 開始時刻             |
+| endTime   | TIME      | 終了時刻             |
 | deletedAt | TIMESTAMP | NULLable、論理削除用 |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| createdAt | TIMESTAMP |                      |
+| updatedAt | TIMESTAMP |                      |
 
 インデックス: `[tenantId, dayOfWeek]`
 
 **LessonSession（個別レッスン実施記録）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| lessonSlotId | UUID | FK → LessonSlot（NULLable、振替の場合NULL） |
-| studentId | UUID | FK → Student |
-| courseId | UUID | FK → Course |
-| date | DATE | 実施日 |
-| startTime | TIME | 開始時刻 |
-| endTime | TIME | 終了時刻 |
-| status | SessionStatus | SCHEDULED / COMPLETED / CANCELLED / RESCHEDULED |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム       | 型            | 説明                                            |
+| ------------ | ------------- | ----------------------------------------------- |
+| id           | UUID          | PK                                              |
+| tenantId     | UUID          | FK → Tenant                                     |
+| lessonSlotId | UUID          | FK → LessonSlot（NULLable、振替の場合NULL）     |
+| studentId    | UUID          | FK → Student                                    |
+| courseId     | UUID          | FK → Course                                     |
+| date         | DATE          | 実施日                                          |
+| startTime    | TIME          | 開始時刻                                        |
+| endTime      | TIME          | 終了時刻                                        |
+| status       | SessionStatus | SCHEDULED / COMPLETED / CANCELLED / RESCHEDULED |
+| createdAt    | TIMESTAMP     |                                                 |
+| updatedAt    | TIMESTAMP     |                                                 |
 
 インデックス: `[tenantId, date]`, `[studentId, date]`
 
 **Attendance（出欠）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| lessonSessionId | UUID | FK → LessonSession |
-| studentId | UUID | FK → Student |
-| tenantId | UUID | FK → Tenant |
-| status | AttendanceStatus | PRESENT / ABSENT / LATE |
-| note | VARCHAR(500) | NULLable、先生メモ |
-| createdAt | TIMESTAMP | |
+| カラム          | 型               | 説明                    |
+| --------------- | ---------------- | ----------------------- |
+| id              | UUID             | PK                      |
+| lessonSessionId | UUID             | FK → LessonSession      |
+| studentId       | UUID             | FK → Student            |
+| tenantId        | UUID             | FK → Tenant             |
+| status          | AttendanceStatus | PRESENT / ABSENT / LATE |
+| note            | VARCHAR(500)     | NULLable、先生メモ      |
+| createdAt       | TIMESTAMP        |                         |
 
 インデックス: `[lessonSessionId, studentId]` UNIQUE, `[tenantId]`
 
 **LessonNote（レッスンメモ + AIレポート）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| lessonSessionId | UUID | FK → LessonSession |
-| studentId | UUID | FK → Student |
-| teacherMemo | TEXT | 先生の短いメモ |
-| aiReport | TEXT | AI生成レポート（NULLable） |
-| reportStatus | ReportStatus | DRAFT / SENT |
-| sentAt | TIMESTAMP | NULLable |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム          | 型           | 説明                       |
+| --------------- | ------------ | -------------------------- |
+| id              | UUID         | PK                         |
+| tenantId        | UUID         | FK → Tenant                |
+| lessonSessionId | UUID         | FK → LessonSession         |
+| studentId       | UUID         | FK → Student               |
+| teacherMemo     | TEXT         | 先生の短いメモ             |
+| aiReport        | TEXT         | AI生成レポート（NULLable） |
+| reportStatus    | ReportStatus | DRAFT / SENT               |
+| sentAt          | TIMESTAMP    | NULLable                   |
+| createdAt       | TIMESTAMP    |                            |
+| updatedAt       | TIMESTAMP    |                            |
 
 インデックス: `[lessonSessionId, studentId]` UNIQUE, `[tenantId]`
 
 **MonthlySummary（月次サマリー）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| studentId | UUID | FK → Student |
-| courseId | UUID | FK → Course |
-| year | INT | 年 |
-| month | INT | 月（1-12） |
-| aiSummary | TEXT | AI生成サマリー |
-| editedSummary | TEXT | 先生が編集したサマリー（NULLable） |
-| reportStatus | ReportStatus | DRAFT / SENT |
-| sentAt | TIMESTAMP | NULLable |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム        | 型           | 説明                               |
+| ------------- | ------------ | ---------------------------------- |
+| id            | UUID         | PK                                 |
+| tenantId      | UUID         | FK → Tenant                        |
+| studentId     | UUID         | FK → Student                       |
+| courseId      | UUID         | FK → Course                        |
+| year          | INT          | 年                                 |
+| month         | INT          | 月（1-12）                         |
+| aiSummary     | TEXT         | AI生成サマリー                     |
+| editedSummary | TEXT         | 先生が編集したサマリー（NULLable） |
+| reportStatus  | ReportStatus | DRAFT / SENT                       |
+| sentAt        | TIMESTAMP    | NULLable                           |
+| createdAt     | TIMESTAMP    |                                    |
+| updatedAt     | TIMESTAMP    |                                    |
 
 インデックス: `[tenantId, studentId, courseId, year, month]` UNIQUE
 
 **RescheduleRequest（振替リクエスト）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| originalSessionId | UUID | FK → LessonSession |
-| requestedSessionId | UUID | FK → LessonSession（NULLable、承認後に設定） |
-| studentId | UUID | FK → Student |
-| requestedById | UUID | FK → User（保護者） |
-| status | RescheduleStatus | PENDING / APPROVED / REJECTED / CANCELLED |
-| suggestedSlots | JSON | AIサジェスト結果 |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム             | 型               | 説明                                         |
+| ------------------ | ---------------- | -------------------------------------------- |
+| id                 | UUID             | PK                                           |
+| tenantId           | UUID             | FK → Tenant                                  |
+| originalSessionId  | UUID             | FK → LessonSession                           |
+| requestedSessionId | UUID             | FK → LessonSession（NULLable、承認後に設定） |
+| studentId          | UUID             | FK → Student                                 |
+| requestedById      | UUID             | FK → User（保護者）                          |
+| status             | RescheduleStatus | PENDING / APPROVED / REJECTED / CANCELLED    |
+| suggestedSlots     | JSON             | AIサジェスト結果                             |
+| createdAt          | TIMESTAMP        |                                              |
+| updatedAt          | TIMESTAMP        |                                              |
 
 インデックス: `[tenantId, status]`, `[studentId]`
 
 **Payment（月謝）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| studentId | UUID | FK → Student |
-| courseId | UUID | FK → Course |
-| year | INT | 年 |
-| month | INT | 月（1-12） |
-| amount | INT | 金額（円） |
-| status | PaymentStatus | UNPAID / PAID / OVERDUE |
-| paidAt | TIMESTAMP | NULLable |
-| note | VARCHAR(500) | NULLable |
-| createdAt | TIMESTAMP | |
-| updatedAt | TIMESTAMP | |
+| カラム    | 型            | 説明                    |
+| --------- | ------------- | ----------------------- |
+| id        | UUID          | PK                      |
+| tenantId  | UUID          | FK → Tenant             |
+| studentId | UUID          | FK → Student            |
+| courseId  | UUID          | FK → Course             |
+| year      | INT           | 年                      |
+| month     | INT           | 月（1-12）              |
+| amount    | INT           | 金額（円）              |
+| status    | PaymentStatus | UNPAID / PAID / OVERDUE |
+| paidAt    | TIMESTAMP     | NULLable                |
+| note      | VARCHAR(500)  | NULLable                |
+| createdAt | TIMESTAMP     |                         |
+| updatedAt | TIMESTAMP     |                         |
 
 インデックス: `[tenantId, year, month]`, `[studentId, courseId, year, month]` UNIQUE
 
 **Notification（通知）**
 
-| カラム | 型 | 説明 |
-|---|---|---|
-| id | UUID | PK |
-| tenantId | UUID | FK → Tenant |
-| userId | UUID | FK → User |
-| channel | NotificationChannel | LINE |
-| type | NotificationType | |
-| status | NotificationStatus | PENDING / SENT / FAILED |
-| referenceId | UUID | 紐づくエンティティのID |
-| referenceType | VARCHAR(50) | エンティティ種別（"lesson_note", "reschedule" 等） |
-| sentAt | TIMESTAMP | NULLable |
-| createdAt | TIMESTAMP | |
+| カラム        | 型                  | 説明                                               |
+| ------------- | ------------------- | -------------------------------------------------- |
+| id            | UUID                | PK                                                 |
+| tenantId      | UUID                | FK → Tenant                                        |
+| userId        | UUID                | FK → User                                          |
+| channel       | NotificationChannel | LINE                                               |
+| type          | NotificationType    |                                                    |
+| status        | NotificationStatus  | PENDING / SENT / FAILED                            |
+| referenceId   | UUID                | 紐づくエンティティのID                             |
+| referenceType | VARCHAR(50)         | エンティティ種別（"lesson_note", "reschedule" 等） |
+| sentAt        | TIMESTAMP           | NULLable                                           |
+| createdAt     | TIMESTAMP           |                                                    |
 
 インデックス: `[tenantId, status]`, `[userId, status]`
 
@@ -291,12 +291,14 @@ src/
 ### 主要エンドポイント
 
 **parent（保護者管理）**
+
 - `POST /parents` — 保護者ユーザー作成（先生が実行）
 - `GET /parents` — 保護者一覧
 - `GET /students/:id/parents` — 生徒の保護者一覧
 - `POST /students/:id/invite` — LINE招待リンク/QRコード生成
 
 **student**
+
 - `POST /students` — 生徒登録
 - `GET /students` — 生徒一覧
 - `GET /students/:id` — 生徒詳細（出席率統計を含む）
@@ -308,12 +310,14 @@ src/
 - `DELETE /students/:id/courses/:courseId` — コース登録解除
 
 **course**
+
 - `POST /courses` — コース作成
 - `GET /courses` — コース一覧
 - `PATCH /courses/:id` — コース更新
 - `DELETE /courses/:id` — コース削除（論理削除）
 
 **lesson**
+
 - `GET /lessons/weekly` — 今週のレッスン一覧
 - `GET /lessons/daily?date=` — 指定日のレッスン一覧
 - `POST /lessons/slots` — レッスン枠登録
@@ -326,15 +330,18 @@ src/
 - `POST /lessons/sessions` — アドホックセッション作成（手動振替等）
 
 **attendance**
+
 - `POST /attendance` — 出欠記録（バッチ対応）
 - `GET /students/:id/attendance` — 生徒別出席履歴
 - `GET /students/:id/attendance/stats?year=&month=` — 月間出席率統計
 - `GET /lessons/sessions/:id/attendance` — セッション別出欠一覧
 
 **absence（保護者からの欠席連絡）**
+
 - `POST /absences` — 欠席連絡（保護者がWeb経由で送信）
 
 **lesson-note**
+
 - `POST /lesson-notes` — メモ保存
 - `GET /students/:id/lesson-notes` — 生徒別メモ一覧
 - `POST /lesson-notes/:id/generate-report` — AIレポート生成
@@ -342,23 +349,27 @@ src/
 - `POST /lesson-notes/:id/send` — LINE配信
 
 **monthly-summary**
+
 - `POST /monthly-summaries/generate` — 月次サマリーAI生成（生徒単位）
 - `GET /monthly-summaries?year=&month=` — 月次サマリー一覧
 - `PATCH /monthly-summaries/:id` — サマリー編集
 - `POST /monthly-summaries/:id/send` — LINE配信
 
 **reschedule**
+
 - `POST /reschedules` — 振替申請（保護者）
 - `GET /reschedules` — リクエスト一覧
 - `PATCH /reschedules/:id` — 承認/却下（先生）
 
 **payment**
+
 - `GET /payments` — 月謝一覧（月別フィルタ）
 - `POST /payments/generate` — 月次請求一括生成
 - `PATCH /payments/:id` — 入金確認
 - `GET /payments/summary` — 月次入金サマリー
 
 **line**
+
 - `POST /line/webhook` — 欠席連絡・振替申請の受信
 
 ### セッション一括生成仕様（POST /lessons/generate）
@@ -370,11 +381,11 @@ src/
 
 ### 定期ジョブ
 
-| ジョブ | スケジュール | 内容 |
-|---|---|---|
-| レッスンリマインド | 毎日 9:00 JST | 翌日のレッスンの保護者にLINE通知 |
+| ジョブ             | スケジュール      | 内容                                      |
+| ------------------ | ----------------- | ----------------------------------------- |
+| レッスンリマインド | 毎日 9:00 JST     | 翌日のレッスンの保護者にLINE通知          |
 | 月謝未納リマインド | 毎月15日 9:00 JST | UNPAID ステータスの月謝の保護者にLINE通知 |
-| 月謝ステータス更新 | 毎月1日 0:00 JST | 前月の UNPAID を OVERDUE に変更 |
+| 月謝ステータス更新 | 毎月1日 0:00 JST  | 前月の UNPAID を OVERDUE に変更           |
 
 ### LINE会話ステート管理
 
@@ -485,22 +496,22 @@ app/
 
 ### LINE内で完結する操作
 
-| 操作 | 方式 |
-|---|---|
-| レッスンレポート受信 | Flex Message |
-| レッスン前日リマインド | テキスト |
-| 欠席連絡 | テキスト送信 or リッチメニュー |
-| 振替申請 | 空き枠をFlex Messageで提示→ボタン選択 |
-| 振替結果通知 | テキスト |
-| 月謝リマインド | テキスト |
+| 操作                   | 方式                                  |
+| ---------------------- | ------------------------------------- |
+| レッスンレポート受信   | Flex Message                          |
+| レッスン前日リマインド | テキスト                              |
+| 欠席連絡               | テキスト送信 or リッチメニュー        |
+| 振替申請               | 空き枠をFlex Messageで提示→ボタン選択 |
+| 振替結果通知           | テキスト                              |
+| 月謝リマインド         | テキスト                              |
 
 ### Webに遷移する操作
 
-| 操作 | 理由 |
-|---|---|
-| レポート履歴一覧 | 一覧表示はWebが適切 |
-| スケジュール全体確認 | カレンダー表示 |
-| 月謝支払い履歴 | 一覧表示 |
+| 操作                 | 理由                |
+| -------------------- | ------------------- |
+| レポート履歴一覧     | 一覧表示はWebが適切 |
+| スケジュール全体確認 | カレンダー表示      |
+| 月謝支払い履歴       | 一覧表示            |
 
 ### 欠席→振替フロー
 
@@ -520,47 +531,47 @@ app/
 
 ### 流用（構造維持、内容調整）
 
-| 対象 | 変更点 |
-|---|---|
-| `common/guards/` | Role を TEACHER/PARENT に変更 |
-| `common/decorators/` | そのまま |
-| `common/interceptors/` | TenantInterceptor そのまま |
-| `modules/auth/` | 認証フロー維持、LINE Login を保護者向けに調整 |
-| `modules/tenant/` | genre フィールド追加 |
-| `modules/prisma/` | そのまま |
-| `modules/mail/` | そのまま |
-| `modules/line/` | Webhook を欠席・振替フローに書き換え |
-| `modules/notification/` | NotificationType を新タイプに変更 |
+| 対象                    | 変更点                                        |
+| ----------------------- | --------------------------------------------- |
+| `common/guards/`        | Role を TEACHER/PARENT に変更                 |
+| `common/decorators/`    | そのまま                                      |
+| `common/interceptors/`  | TenantInterceptor そのまま                    |
+| `modules/auth/`         | 認証フロー維持、LINE Login を保護者向けに調整 |
+| `modules/tenant/`       | genre フィールド追加                          |
+| `modules/prisma/`       | そのまま                                      |
+| `modules/mail/`         | そのまま                                      |
+| `modules/line/`         | Webhook を欠席・振替フローに書き換え          |
+| `modules/notification/` | NotificationType を新タイプに変更             |
 
 ### 削除
 
-| 対象 | 理由 |
-|---|---|
-| `modules/circular/` | ドメイン変更 |
-| `modules/answer/` | ドメイン変更 |
-| `modules/read/` | ドメイン変更 |
-| `modules/template/` | ドメイン変更 |
-| `modules/group/` | Student + Course で代替 |
-| `modules/user/` | 新規の student/ + 保護者管理に置換 |
-| `app/(admin)/*` | → (teacher) に置換 |
-| `app/(resident)/*` | → (parent) に置換 |
-| Prisma: Circular, CircularRead, CircularQuestion, CircularAnswer, Template, Group, Invitation | 回覧板ドメイン全て |
-| Enum: CircularType, CircularStatus, TargetType, QuestionType, InvitationMethod, InvitationStatus | 同上 |
+| 対象                                                                                             | 理由                               |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| `modules/circular/`                                                                              | ドメイン変更                       |
+| `modules/answer/`                                                                                | ドメイン変更                       |
+| `modules/read/`                                                                                  | ドメイン変更                       |
+| `modules/template/`                                                                              | ドメイン変更                       |
+| `modules/group/`                                                                                 | Student + Course で代替            |
+| `modules/user/`                                                                                  | 新規の student/ + 保護者管理に置換 |
+| `app/(admin)/*`                                                                                  | → (teacher) に置換                 |
+| `app/(resident)/*`                                                                               | → (parent) に置換                  |
+| Prisma: Circular, CircularRead, CircularQuestion, CircularAnswer, Template, Group, Invitation    | 回覧板ドメイン全て                 |
+| Enum: CircularType, CircularStatus, TargetType, QuestionType, InvitationMethod, InvitationStatus | 同上                               |
 
 ### 新規作成
 
-| 対象 | 概要 |
-|---|---|
-| `modules/parent/` | 保護者管理、招待リンク生成 |
-| `modules/student/` | 生徒CRUD + 保護者紐づけ + コース登録 |
-| `modules/course/` | コースCRUD |
-| `modules/lesson/` | スケジュール管理 + セッション生成・CRUD |
-| `modules/attendance/` | 出欠記録 + 統計 |
-| `modules/absence/` | 保護者からの欠席連絡 |
-| `modules/lesson-note/` | メモ + AIレポート生成 |
-| `modules/monthly-summary/` | 月次サマリー管理 |
-| `modules/reschedule/` | 振替リクエスト管理（振替上限チェック含む） |
-| `modules/payment/` | 月謝管理 |
-| `modules/ai/` | Claude APIクライアント |
-| `app/(teacher)/*` | 先生向け全ページ |
-| `app/(parent)/*` | 保護者向け全ページ |
+| 対象                       | 概要                                       |
+| -------------------------- | ------------------------------------------ |
+| `modules/parent/`          | 保護者管理、招待リンク生成                 |
+| `modules/student/`         | 生徒CRUD + 保護者紐づけ + コース登録       |
+| `modules/course/`          | コースCRUD                                 |
+| `modules/lesson/`          | スケジュール管理 + セッション生成・CRUD    |
+| `modules/attendance/`      | 出欠記録 + 統計                            |
+| `modules/absence/`         | 保護者からの欠席連絡                       |
+| `modules/lesson-note/`     | メモ + AIレポート生成                      |
+| `modules/monthly-summary/` | 月次サマリー管理                           |
+| `modules/reschedule/`      | 振替リクエスト管理（振替上限チェック含む） |
+| `modules/payment/`         | 月謝管理                                   |
+| `modules/ai/`              | Claude APIクライアント                     |
+| `app/(teacher)/*`          | 先生向け全ページ                           |
+| `app/(parent)/*`           | 保護者向け全ページ                         |

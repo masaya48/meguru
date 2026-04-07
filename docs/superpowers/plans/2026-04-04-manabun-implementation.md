@@ -19,6 +19,7 @@
 Remove all circular-board domain modules, pages, and components. Keep infrastructure.
 
 **Files:**
+
 - Delete: `apps/api/src/modules/circular/` (entire directory)
 - Delete: `apps/api/src/modules/answer/` (entire directory)
 - Delete: `apps/api/src/modules/read/` (entire directory)
@@ -146,6 +147,7 @@ git commit -m "chore: remove circular-board domain code for manabun pivot"
 Replace all circular-board models and enums with the manabun lesson management schema.
 
 **Files:**
+
 - Modify: `packages/db/prisma/schema.prisma`
 
 - [ ] **Step 1: Write the new schema**
@@ -770,6 +772,7 @@ git commit -m "feat: rewrite prisma schema for manabun lesson management domain"
 ### Task 3: Student module
 
 **Files:**
+
 - Create: `apps/api/src/modules/student/student.module.ts`
 - Create: `apps/api/src/modules/student/student.controller.ts`
 - Create: `apps/api/src/modules/student/student.service.ts`
@@ -803,10 +806,7 @@ describe("StudentService", () => {
     };
 
     const module = await Test.createTestingModule({
-      providers: [
-        StudentService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [StudentService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get(StudentService);
@@ -907,7 +907,9 @@ export class StudentService {
       where: { tenantId, deletedAt: null },
       include: {
         studentCourses: { include: { course: true } },
-        studentParents: { include: { user: { select: { id: true, name: true, lineUserId: true } } } },
+        studentParents: {
+          include: { user: { select: { id: true, name: true, lineUserId: true } } },
+        },
       },
       orderBy: { name: "asc" },
     });
@@ -918,7 +920,9 @@ export class StudentService {
       where: { id },
       include: {
         studentCourses: { include: { course: true } },
-        studentParents: { include: { user: { select: { id: true, name: true, lineUserId: true } } } },
+        studentParents: {
+          include: { user: { select: { id: true, name: true, lineUserId: true } } },
+        },
       },
     });
     if (!student || student.tenantId !== tenantId || student.deletedAt) {
@@ -1003,7 +1007,11 @@ export class StudentController {
 
   @Roles("TEACHER")
   @Patch(":id")
-  update(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string, @Body() dto: UpdateStudentDto) {
+  update(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param("id") id: string,
+    @Body() dto: UpdateStudentDto,
+  ) {
     return this.studentService.update(user.tenantId, id, dto);
   }
 
@@ -1015,25 +1023,41 @@ export class StudentController {
 
   @Roles("TEACHER")
   @Post(":id/parents")
-  addParent(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string, @Body("userId") userId: string) {
+  addParent(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param("id") id: string,
+    @Body("userId") userId: string,
+  ) {
     return this.studentService.addParent(user.tenantId, id, userId);
   }
 
   @Roles("TEACHER")
   @Delete(":id/parents/:userId")
-  removeParent(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string, @Param("userId") userId: string) {
+  removeParent(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param("id") id: string,
+    @Param("userId") userId: string,
+  ) {
     return this.studentService.removeParent(user.tenantId, id, userId);
   }
 
   @Roles("TEACHER")
   @Post(":id/courses")
-  addCourse(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string, @Body("courseId") courseId: string) {
+  addCourse(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param("id") id: string,
+    @Body("courseId") courseId: string,
+  ) {
     return this.studentService.addCourse(user.tenantId, id, courseId);
   }
 
   @Roles("TEACHER")
   @Delete(":id/courses/:courseId")
-  removeCourse(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string, @Param("courseId") courseId: string) {
+  removeCourse(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param("id") id: string,
+    @Param("courseId") courseId: string,
+  ) {
     return this.studentService.removeCourse(user.tenantId, id, courseId);
   }
 }
@@ -1079,6 +1103,7 @@ git commit -m "feat: add student module with CRUD, parent/course linking"
 Same pattern as Student module but simpler (no parent/course linking).
 
 **Files:**
+
 - Create: `apps/api/src/modules/course/course.module.ts`
 - Create: `apps/api/src/modules/course/course.controller.ts`
 - Create: `apps/api/src/modules/course/course.service.ts`
@@ -1089,6 +1114,7 @@ Same pattern as Student module but simpler (no parent/course linking).
 - [ ] **Step 1: Write tests, DTOs, service, controller, module**
 
 Follow the same TDD pattern as Task 3. Key differences:
+
 - `CreateCourseDto`: `name` (string, required), `monthlyFee` (number, required), `maxMonthlyReschedules` (number, optional, default 2)
 - Service: CRUD with soft delete (`deletedAt`), filter by `tenantId` and `deletedAt: null`
 - Controller: All endpoints require `@Roles("TEACHER")`
@@ -1111,6 +1137,7 @@ git commit -m "feat: add course module with CRUD and soft delete"
 ### Task 5: Parent module
 
 **Files:**
+
 - Create: `apps/api/src/modules/parent/parent.module.ts`
 - Create: `apps/api/src/modules/parent/parent.controller.ts`
 - Create: `apps/api/src/modules/parent/parent.service.ts`
@@ -1120,6 +1147,7 @@ git commit -m "feat: add course module with CRUD and soft delete"
 - [ ] **Step 1: Write tests, DTOs, service, controller, module**
 
 Key behavior:
+
 - `POST /parents`: Teacher creates a parent User with `role: PARENT`, `status: ACTIVE`
 - `GET /parents`: List all parents in tenant
 - `POST /students/:id/invite`: Generate a LINE invite link. Create an invite token (JWT with studentId + tenantId), encode into a URL like `https://line.me/R/ti/p/@account?token=xxx`. The follow event handler will use this token to link the parent.
@@ -1141,6 +1169,7 @@ git commit -m "feat: add parent module with creation and LINE invite generation"
 This is the most complex module. Handles schedule slots, session CRUD, and bulk generation.
 
 **Files:**
+
 - Create: `apps/api/src/modules/lesson/lesson.module.ts`
 - Create: `apps/api/src/modules/lesson/lesson.controller.ts`
 - Create: `apps/api/src/modules/lesson/lesson.service.ts`
@@ -1187,6 +1216,7 @@ export class GenerateSessionsDto {
 - [ ] **Step 4: Implement lesson service**
 
 Key methods:
+
 - `createSlot(tenantId, dto)` — CRUD for LessonSlot
 - `generateSessions(tenantId, { year, month })` — bulk generation with idempotency
 - `findWeekly(tenantId, weekStartDate)` — sessions for a week
@@ -1197,6 +1227,7 @@ Key methods:
 - `createAdHocSession(tenantId, dto)` — manual session creation
 
 Session generation logic:
+
 ```typescript
 async generateSessions(tenantId: string, dto: GenerateSessionsDto) {
   const slots = await this.prisma.lessonSlot.findMany({
@@ -1268,6 +1299,7 @@ git commit -m "feat: add lesson module with slot CRUD, session generation, and w
 ### Task 7: Attendance module
 
 **Files:**
+
 - Create: `apps/api/src/modules/attendance/attendance.module.ts`
 - Create: `apps/api/src/modules/attendance/attendance.controller.ts`
 - Create: `apps/api/src/modules/attendance/attendance.service.ts`
@@ -1281,6 +1313,7 @@ Test: record attendance (upsert pattern), get student history, calculate stats (
 - [ ] **Step 2: Implement service**
 
 Key methods:
+
 - `record(tenantId, dto)` — upsert attendance for a session. Dto: `{ lessonSessionId, studentId, status, note? }`
 - `getStudentHistory(tenantId, studentId)` — all attendance records for a student
 - `getStudentStats(tenantId, studentId, year, month)` — `{ total, present, absent, late, rate }`
@@ -1289,6 +1322,7 @@ Key methods:
 - [ ] **Step 3: Implement controller, module, register**
 
 Endpoints:
+
 - `POST /attendance` (TEACHER) — record
 - `GET /students/:id/attendance` — history
 - `GET /students/:id/attendance/stats` — stats with year/month query params
@@ -1308,6 +1342,7 @@ git commit -m "feat: add attendance module with recording, history, and stats"
 ### Task 8: Payment module
 
 **Files:**
+
 - Create: `apps/api/src/modules/payment/payment.module.ts`
 - Create: `apps/api/src/modules/payment/payment.controller.ts`
 - Create: `apps/api/src/modules/payment/payment.service.ts`
@@ -1322,6 +1357,7 @@ Test: generate monthly payments (one per studentCourse), idempotency (unique con
 - [ ] **Step 2: Implement service**
 
 Key methods:
+
 - `generate(tenantId, { year, month })` — for each active StudentCourse, create Payment with amount from Course.monthlyFee. Skip if already exists (unique constraint).
 - `findAll(tenantId, year?, month?)` — list with filters
 - `markPaid(tenantId, paymentId)` — set status=PAID, paidAt=now()
@@ -1343,6 +1379,7 @@ git commit -m "feat: add payment module with generation, confirmation, and summa
 ### Task 9: AI module (Claude API client)
 
 **Files:**
+
 - Create: `apps/api/src/modules/ai/ai.module.ts`
 - Create: `apps/api/src/modules/ai/ai.service.ts`
 - Test: `apps/api/src/modules/ai/ai.service.spec.ts`
@@ -1458,6 +1495,7 @@ git commit -m "feat: add AI module with Claude API for lesson report and monthly
 ### Task 10: Lesson Note module
 
 **Files:**
+
 - Create: `apps/api/src/modules/lesson-note/lesson-note.module.ts`
 - Create: `apps/api/src/modules/lesson-note/lesson-note.controller.ts`
 - Create: `apps/api/src/modules/lesson-note/lesson-note.service.ts`
@@ -1466,6 +1504,7 @@ git commit -m "feat: add AI module with Claude API for lesson report and monthly
 - Test: `apps/api/src/modules/lesson-note/lesson-note.service.spec.ts`
 
 **Module imports:** `LessonNoteModule` must import `AiModule` (for report generation) and `NotificationModule` + `LineModule` (for LINE delivery):
+
 ```typescript
 @Module({
   imports: [AiModule, NotificationModule, LineModule],
@@ -1483,6 +1522,7 @@ Test: create note, generate AI report (calls AiService), edit report, send via L
 - [ ] **Step 2: Implement service**
 
 Key methods:
+
 - `create(tenantId, dto)` — save teacher memo
 - `findByStudent(tenantId, studentId)` — list notes for a student
 - `generateReport(tenantId, noteId)` — call AiService, save aiReport, set reportStatus=DRAFT
@@ -1503,6 +1543,7 @@ git commit -m "feat: add lesson-note module with AI report generation and LINE d
 ### Task 11: Monthly Summary module
 
 **Files:**
+
 - Create: `apps/api/src/modules/monthly-summary/monthly-summary.module.ts`
 - Create: `apps/api/src/modules/monthly-summary/monthly-summary.controller.ts`
 - Create: `apps/api/src/modules/monthly-summary/monthly-summary.service.ts`
@@ -1513,6 +1554,7 @@ git commit -m "feat: add lesson-note module with AI report generation and LINE d
 - [ ] **Step 1: Write tests, implement service/controller/module**
 
 Key methods:
+
 - `generate(tenantId, studentId, courseId, year, month)` — gather lesson notes + attendance for the month, call AiService.generateMonthlySummary, save to MonthlySummary
 - `findAll(tenantId, year, month)` — list summaries
 - `update(tenantId, summaryId, editedSummary)` — edit
@@ -1532,6 +1574,7 @@ git commit -m "feat: add monthly-summary module with AI generation and LINE deli
 ### Task 12: Reschedule module
 
 **Files:**
+
 - Create: `apps/api/src/modules/reschedule/reschedule.module.ts`
 - Create: `apps/api/src/modules/reschedule/reschedule.controller.ts`
 - Create: `apps/api/src/modules/reschedule/reschedule.service.ts`
@@ -1548,12 +1591,14 @@ Test: create request (check monthly limit from Course.maxMonthlyReschedules), ap
 - [ ] **Step 2: Implement service**
 
 Key methods:
+
 - `create(tenantId, userId, dto)` — validate monthly limit, create request with status PENDING, notify teacher
 - `findAll(tenantId, status?)` — list requests
 - `approve(tenantId, requestId, targetSessionId)` — set status APPROVED, set requestedSessionId, update original session status to RESCHEDULED
 - `reject(tenantId, requestId)` — set status REJECTED, notify parent
 
 Monthly limit check:
+
 ```typescript
 // Get course from the original session
 const originalSession = await this.prisma.lessonSession.findUnique({
@@ -1593,6 +1638,7 @@ git commit -m "feat: add reschedule module with monthly limit enforcement"
 ### Task 13: Absence module
 
 **Files:**
+
 - Create: `apps/api/src/modules/absence/absence.module.ts`
 - Create: `apps/api/src/modules/absence/absence.controller.ts`
 - Create: `apps/api/src/modules/absence/absence.service.ts`
@@ -1602,14 +1648,17 @@ git commit -m "feat: add reschedule module with monthly limit enforcement"
 - [ ] **Step 1: Write tests, implement**
 
 Key behavior:
+
 - `POST /absences` — parent submits absence for a session. Sets session status to CANCELLED, creates Attendance with ABSENT, notifies teacher.
 - `CreateAbsenceDto`: `{ lessonSessionId: string }`
 
 **Session status state machine:**
+
 ```
 SCHEDULED → CANCELLED (absence reported, no reschedule)
 SCHEDULED → CANCELLED → RESCHEDULED (absence → reschedule approved)
 ```
+
 The absence module sets CANCELLED. If a reschedule is later approved (Task 12), the reschedule service updates the original session from CANCELLED to RESCHEDULED. This two-step transition is intentional.
 
 - [ ] **Step 2: Register, run tests, commit**
@@ -1626,6 +1675,7 @@ git commit -m "feat: add absence module for parent-initiated absence reports"
 ### Task 14: Rewrite LINE webhook and notification service
 
 **Files:**
+
 - Modify: `apps/api/src/modules/line/line-webhook.controller.ts`
 - Modify: `apps/api/src/modules/line/line.service.ts`
 - Create: `apps/api/src/modules/line/line-message.builder.ts` (rewrite)
@@ -1635,6 +1685,7 @@ git commit -m "feat: add absence module for parent-initiated absence reports"
 - [ ] **Step 1: Rewrite line-message.builder.ts**
 
 Create Flex Message builders for:
+
 - Lesson report notification
 - Lesson reminder
 - Reschedule request (teacher-facing)
@@ -1645,6 +1696,7 @@ Create Flex Message builders for:
 - [ ] **Step 2: Rewrite webhook controller**
 
 Handle postback actions:
+
 ```
 action=absence&sessionId=xxx
 action=reschedule_confirm&sessionId=xxx
@@ -1658,6 +1710,7 @@ Handle follow event: link parent to student using invite token from URL.
 - [ ] **Step 3: Rewrite notification service**
 
 Replace circular notification methods with:
+
 - `sendLessonReport(noteId)` — send Flex Message with report content
 - `sendLessonReminder(sessionId)` — simple text reminder
 - `sendRescheduleRequest(requestId)` — notify teacher with approve/reject buttons
@@ -1697,6 +1750,7 @@ git commit -m "feat: rewrite LINE integration for lesson management (absence, re
 ### Task 15: Teacher layout and navigation
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/layout.tsx`
 - Create: `apps/web/components/layouts/teacher-bottom-nav.tsx`
 
@@ -1720,6 +1774,7 @@ git commit -m "feat: add teacher layout with bottom navigation"
 ### Task 16: Teacher home page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/page.tsx`
 
 - [ ] **Step 1: Implement home page**
@@ -1738,6 +1793,7 @@ git commit -m "feat: add teacher home page with today's lessons"
 ### Task 17: Student management pages
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/students/page.tsx`
 - Create: `apps/web/app/(teacher)/students/new/page.tsx`
 - Create: `apps/web/app/(teacher)/students/[id]/page.tsx`
@@ -1767,6 +1823,7 @@ git commit -m "feat: add student management pages (list, create, detail)"
 ### Task 18: Course management page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/courses/page.tsx`
 - Create: `apps/web/app/(teacher)/courses/actions.ts`
 
@@ -1786,6 +1843,7 @@ git commit -m "feat: add course management page"
 ### Task 19: Schedule page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/schedule/page.tsx`
 - Create: `apps/web/app/(teacher)/schedule/actions.ts`
 
@@ -1805,6 +1863,7 @@ git commit -m "feat: add weekly schedule page with lesson slot management"
 ### Task 20: Attendance pages
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/attendance/page.tsx`
 - Create: `apps/web/app/(teacher)/attendance/[sessionId]/page.tsx`
 - Create: `apps/web/app/(teacher)/attendance/actions.ts`
@@ -1831,6 +1890,7 @@ git commit -m "feat: add attendance recording pages with lesson memo and AI repo
 ### Task 21: Reschedule management page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/reschedules/page.tsx`
 - Create: `apps/web/app/(teacher)/reschedules/actions.ts`
 
@@ -1850,6 +1910,7 @@ git commit -m "feat: add reschedule management page for teachers"
 ### Task 22: Payment management page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/payments/page.tsx`
 - Create: `apps/web/app/(teacher)/payments/actions.ts`
 
@@ -1869,6 +1930,7 @@ git commit -m "feat: add payment management page with monthly generation"
 ### Task 23: Reports page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/reports/page.tsx`
 - Create: `apps/web/app/(teacher)/reports/actions.ts`
 
@@ -1888,6 +1950,7 @@ git commit -m "feat: add reports management page for lesson notes and monthly su
 ### Task 24: Teacher settings page
 
 **Files:**
+
 - Create: `apps/web/app/(teacher)/settings/page.tsx`
 - Create: `apps/web/app/(teacher)/settings/actions.ts`
 
@@ -1909,6 +1972,7 @@ git commit -m "feat: add teacher settings page"
 ### Task 25: Parent layout and pages
 
 **Files:**
+
 - Create: `apps/web/app/(parent)/layout.tsx`
 - Create: `apps/web/app/(parent)/page.tsx`
 - Create: `apps/web/app/(parent)/reports/page.tsx`
@@ -1955,6 +2019,7 @@ git commit -m "feat: add parent-facing pages (home, reports, schedule, absence, 
 ### Task 26: Update landing page and auth
 
 **Files:**
+
 - Modify: `apps/web/app/lp/page.tsx`
 - Modify: `apps/web/app/auth/login/page.tsx`
 - Modify: `apps/web/app/auth/login/actions.ts`
@@ -1981,6 +2046,7 @@ git commit -m "feat: update landing page and auth for manabun branding"
 ### Task 27: Update project documentation
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 - Modify: `docs/prd/002-manabun-mvp.md` (if needed)
 - Modify: `.claude/rules/context-map.md`

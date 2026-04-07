@@ -17,8 +17,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <img src="/logo.svg" alt="めぐる" className="mx-auto h-16" />
-          <p className="mt-2 text-ink-light text-sm">地域をつなぐ、情報がめぐる</p>
+          <img src="/logo.svg" alt="まなぶん" className="mx-auto h-16" />
+          <p className="mt-2 text-ink-light text-sm">個人教室の運営をもっとかんたんに</p>
         </div>
 
         {mode === "magic" ? (
@@ -35,10 +35,10 @@ export default function LoginPage() {
             ) : (
               <form action={magicAction} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-ink-light mb-1">町内会ID</label>
+                  <label className="block text-sm font-medium text-ink-light mb-1">教室ID</label>
                   <Input
                     name="tenantSlug"
-                    placeholder="例: sakura-cho"
+                    placeholder="例: my-piano-school"
                     required
                     className="rounded-lg px-4 py-3 text-lg"
                   />

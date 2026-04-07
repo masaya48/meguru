@@ -1,3 +1,9 @@
+---
+name: triage-issue
+description: GitHub Issue をトリアージし、ラベル・優先度・見積もりを付与する。
+argument-hint: "[issue-number]"
+---
+
 GitHub Issue をトリアージし、ラベル・優先度・見積もりを付与する。
 
 引数: Issue番号 (例: `/triage-issue 42`)

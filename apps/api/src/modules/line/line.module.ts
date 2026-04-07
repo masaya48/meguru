@@ -1,10 +1,11 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { LineService } from "./line.service";
 import { LineWebhookController } from "./line-webhook.controller";
-import { AnswerModule } from "../answer/answer.module";
+import { RescheduleModule } from "../reschedule/reschedule.module";
+import { NotificationModule } from "../notification/notification.module";
 
 @Module({
-  imports: [AnswerModule],
+  imports: [RescheduleModule, forwardRef(() => NotificationModule)],
   controllers: [LineWebhookController],
   providers: [LineService],
   exports: [LineService],

@@ -1,7 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { LineService } from "../line/line.service";
-import { buildCircularNotification, buildReminderMessage } from "../line/line-message.builder";
+import {
+  buildLessonReportMessage,
+  buildLessonReminderMessage,
+  buildRescheduleRequestMessage,
+  buildRescheduleResultMessage,
+  buildPaymentReminderMessage,
+} from "../line/line-message.builder";
 
 @Injectable()
 export class NotificationService {
@@ -12,154 +18,183 @@ export class NotificationService {
     private readonly lineService: LineService,
   ) {}
 
-  async notifyCircularPublished(circularId: string) {
-    const circular = await this.prisma.circular.findUnique({
-      where: { id: circularId },
+  /** Send lesson report flex message to all parents of the student */
+  async sendLessonReport(noteId: string) {
+    const note = await this.prisma.lessonNote.findUnique({
+      where: { id: noteId },
       include: {
-        questions: { orderBy: { sortOrder: "asc" }, take: 1 },
+        student: { include: { studentParents: { include: { user: true } } } },
+        lessonSession: { include: { course: true } },
       },
     });
-    if (!circular) return;
-
-    const tenant = await this.prisma.tenant.findUnique({
-      where: { id: circular.tenantId },
-    });
-    if (!tenant) return;
-
-    // Get target users with LINE connection
-    const users = await this.prisma.user.findMany({
-      where: {
-        tenantId: circular.tenantId,
-        status: "ACTIVE",
-        lineUserId: { not: null },
-        ...(circular.targetType === "GROUP" && circular.targetGroupIds.length > 0
-          ? { groupId: { in: circular.targetGroupIds } }
-          : {}),
-      },
-    });
+    if (!note) {
+      this.logger.warn(`LessonNote not found: ${noteId}`);
+      return;
+    }
 
     const appUrl = this.lineService.getAppUrl();
-    const firstQuestion =
-      circular.type === "ATTENDANCE" && circular.questions[0]
-        ? {
-            id: circular.questions[0].id,
-            options: (circular.questions[0].options as string[]) ?? ["参加する", "不参加"],
-          }
-        : undefined;
-
-    const message = buildCircularNotification({
-      tenantName: tenant.name,
-      title: circular.title,
-      type: circular.type,
-      circularId: circular.id,
-      appUrl,
-      question: firstQuestion,
+    const message = buildLessonReportMessage({
+      studentName: note.student.name,
+      courseName: note.lessonSession.course.name,
+      date: note.lessonSession.date.toISOString().slice(0, 10),
+      reportText: note.aiReport ?? note.teacherMemo,
+      detailUrl: `${appUrl}/reports/${noteId}`,
     });
 
+    const parents = note.student.studentParents.map((sp) => sp.user);
+    await this.pushToUsers(note.tenantId, parents, [message], "REPORT", noteId);
+  }
+
+  /** Send lesson reminder to all parents of the student in the session */
+  async sendLessonReminder(sessionId: string) {
+    const session = await this.prisma.lessonSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        student: { include: { studentParents: { include: { user: true } } } },
+        course: true,
+      },
+    });
+    if (!session) {
+      this.logger.warn(`LessonSession not found: ${sessionId}`);
+      return;
+    }
+
+    const message = buildLessonReminderMessage({
+      studentName: session.student.name,
+      courseName: session.course.name,
+      date: session.date.toISOString().slice(0, 10),
+      startTime: session.startTime,
+    });
+
+    const parents = session.student.studentParents.map((sp) => sp.user);
+    await this.pushToUsers(session.tenantId, parents, [message], "LESSON_REMINDER", sessionId);
+  }
+
+  /** Send reschedule request notification with approve/reject buttons to teacher */
+  async sendRescheduleRequest(requestId: string) {
+    const request = await this.prisma.rescheduleRequest.findUnique({
+      where: { id: requestId },
+      include: {
+        originalSession: { include: { course: true } },
+        student: true,
+        tenant: { include: { users: { where: { role: "TEACHER" } } } },
+      },
+    });
+    if (!request) {
+      this.logger.warn(`RescheduleRequest not found: ${requestId}`);
+      return;
+    }
+
+    const message = buildRescheduleRequestMessage({
+      studentName: request.student.name,
+      originalDate: request.originalSession.date.toISOString().slice(0, 10),
+      originalTime: request.originalSession.startTime,
+      approveData: `action=reschedule_approve&requestId=${requestId}`,
+      rejectData: `action=reschedule_reject&requestId=${requestId}`,
+    });
+
+    const teachers = request.tenant.users;
+    await this.pushToUsers(request.tenantId, teachers, [message], "RESCHEDULE", requestId);
+  }
+
+  /** Send reschedule result to the parent who made the request */
+  async sendRescheduleResult(requestId: string) {
+    const request = await this.prisma.rescheduleRequest.findUnique({
+      where: { id: requestId },
+      include: {
+        student: true,
+        requestedBy: true,
+        requestedSession: true,
+      },
+    });
+    if (!request) {
+      this.logger.warn(`RescheduleRequest not found: ${requestId}`);
+      return;
+    }
+
+    const approved = request.status === "APPROVED";
+    const message = buildRescheduleResultMessage({
+      studentName: request.student.name,
+      approved,
+      newDate: request.requestedSession?.date.toISOString().slice(0, 10),
+      newTime: request.requestedSession?.startTime,
+    });
+
+    await this.pushToUsers(
+      request.tenantId,
+      [request.requestedBy],
+      [message],
+      "RESCHEDULE",
+      requestId,
+    );
+  }
+
+  /** Send payment reminder to all parents of the student */
+  async sendPaymentReminder(paymentId: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        student: { include: { studentParents: { include: { user: true } } } },
+        course: true,
+      },
+    });
+    if (!payment) {
+      this.logger.warn(`Payment not found: ${paymentId}`);
+      return;
+    }
+
+    const message = buildPaymentReminderMessage({
+      studentName: payment.student.name,
+      courseName: payment.course.name,
+      amount: payment.amount,
+      month: `${payment.year}年${payment.month}月`,
+    });
+
+    const parents = payment.student.studentParents.map((sp) => sp.user);
+    await this.pushToUsers(payment.tenantId, parents, [message], "PAYMENT_REMINDER", paymentId);
+  }
+
+  /** Push messages to users who have a lineUserId, and record notifications */
+  private async pushToUsers(
+    tenantId: string,
+    users: Array<{ id: string; lineUserId: string | null }>,
+    messages: Parameters<LineService["pushMessage"]>[1],
+    type: "LESSON_REMINDER" | "REPORT" | "RESCHEDULE" | "PAYMENT_REMINDER",
+    referenceId: string,
+  ) {
     for (const user of users) {
-      if (!user.lineUserId) continue;
+      if (!user.lineUserId) {
+        this.logger.debug(`User ${user.id} has no lineUserId, skipping push`);
+        continue;
+      }
 
       try {
-        await this.lineService.pushMessage(user.lineUserId, [message]);
-
+        await this.lineService.pushMessage(user.lineUserId, messages);
         await this.prisma.notification.create({
           data: {
-            tenantId: circular.tenantId,
+            tenantId,
             userId: user.id,
-            circularId: circular.id,
             channel: "LINE",
-            type: "NEW_CIRCULAR",
+            type,
             status: "SENT",
+            referenceId,
+            referenceType: type,
             sentAt: new Date(),
           },
         });
       } catch (error) {
-        this.logger.error(`Failed to send LINE notification to ${user.id}`, error);
+        this.logger.error(`Failed to push to user ${user.id}`, error);
         await this.prisma.notification.create({
           data: {
-            tenantId: circular.tenantId,
+            tenantId,
             userId: user.id,
-            circularId: circular.id,
             channel: "LINE",
-            type: "NEW_CIRCULAR",
+            type,
             status: "FAILED",
+            referenceId,
+            referenceType: type,
           },
         });
-      }
-    }
-  }
-
-  async sendReminders() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-
-    const dayAfterTomorrow = new Date(tomorrow);
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
-
-    // Find published circulars with deadline tomorrow
-    const circulars = await this.prisma.circular.findMany({
-      where: {
-        status: "PUBLISHED",
-        type: { in: ["ATTENDANCE", "SURVEY"] },
-        deadline: { gte: tomorrow, lt: dayAfterTomorrow },
-      },
-      include: {
-        tenant: true,
-        questions: true,
-      },
-    });
-
-    for (const circular of circulars) {
-      // Find users who haven't answered all questions
-      const answeredUserIds = await this.prisma.circularAnswer.findMany({
-        where: { question: { circularId: circular.id } },
-        select: { userId: true },
-        distinct: ["userId"],
-      });
-      const answeredSet = new Set(answeredUserIds.map((a) => a.userId));
-
-      const unansweredUsers = await this.prisma.user.findMany({
-        where: {
-          tenantId: circular.tenantId,
-          status: "ACTIVE",
-          lineUserId: { not: null },
-          id: { notIn: [...answeredSet] },
-          ...(circular.targetType === "GROUP" && circular.targetGroupIds.length > 0
-            ? { groupId: { in: circular.targetGroupIds } }
-            : {}),
-        },
-      });
-
-      const appUrl = this.lineService.getAppUrl();
-
-      for (const user of unansweredUsers) {
-        if (!user.lineUserId) continue;
-
-        try {
-          const message = buildReminderMessage(
-            circular.tenant.name,
-            circular.title,
-            circular.id,
-            appUrl,
-          );
-
-          await this.lineService.pushMessage(user.lineUserId, [message]);
-
-          await this.prisma.notification.create({
-            data: {
-              tenantId: circular.tenantId,
-              userId: user.id,
-              circularId: circular.id,
-              channel: "LINE",
-              type: "REMINDER",
-              status: "SENT",
-              sentAt: new Date(),
-            },
-          });
-        } catch (error) {
-          this.logger.error(`Failed to send reminder to ${user.id}`, error);
-        }
       }
     }
   }

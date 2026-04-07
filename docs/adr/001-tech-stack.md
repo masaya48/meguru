@@ -17,14 +17,17 @@
 ## 検討した選択肢
 
 ### A) Next.js + Supabase
+
 - 開発速度が最速。認証・DB・ストレージが一括
 - Supabaseへのロックイン。複雑なビジネスロジックはEdge Functionsで対応が必要
 
 ### B) Next.js + NestJS + PostgreSQL
+
 - バックエンドの自由度が高い。将来の拡張に強い
 - 初期開発コストはやや高い。インフラ管理が増える
 
 ### C) Remix + Firebase
+
 - Firebaseの無料枠が大きい。プッシュ通知が容易
 - NoSQL（Firestore）は既読集計・アンケート回答の集計クエリがやや複雑
 
@@ -41,11 +44,11 @@
 
 ## 構成詳細
 
-| レイヤー | 技術 |
-|---------|------|
-| フロントエンド | Next.js (App Router) + Tailwind CSS |
-| バックエンド | NestJS + Prisma |
-| データベース | PostgreSQL |
-| デプロイ（フロント） | Vercel |
-| デプロイ（API/DB） | Railway / Fly.io |
-| LINE連携 | LINE Messaging API |
+| レイヤー             | 技術                                |
+| -------------------- | ----------------------------------- |
+| フロントエンド       | Next.js (App Router) + Tailwind CSS |
+| バックエンド         | NestJS + Prisma                     |
+| データベース         | PostgreSQL                          |
+| デプロイ（フロント） | Vercel                              |
+| デプロイ（API/DB）   | Railway / Fly.io                    |
+| LINE連携             | LINE Messaging API                  |

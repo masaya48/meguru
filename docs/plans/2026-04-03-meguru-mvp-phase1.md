@@ -101,6 +101,7 @@ meguru/
 ### Task 1: Git初期化 + asdf + pnpm workspace
 
 **Files:**
+
 - Create: `.gitignore`
 - Create: `.tool-versions`
 - Create: `pnpm-workspace.yaml`
@@ -190,6 +191,7 @@ git commit -m "chore: init monorepo with asdf + pnpm workspace"
 ### Task 2: packages/db — Prismaスキーマ
 
 **Files:**
+
 - Create: `packages/db/package.json`
 - Create: `packages/db/tsconfig.json`
 - Create: `packages/db/prisma/schema.prisma`
@@ -579,6 +581,7 @@ git commit -m "feat(db): add Prisma schema with all MVP tables"
 ### Task 3: apps/api — NestJSプロジェクト初期化
 
 **Files:**
+
 - Create: `apps/api/package.json`
 - Create: `apps/api/tsconfig.json`
 - Create: `apps/api/nest-cli.json`
@@ -713,10 +716,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { PrismaClient } from "@meguru/db";
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.$connect();
   }
@@ -735,8 +735,7 @@ export class PrismaService
         $allOperations({ args, query }) {
           const argsWithTenant = args as Record<string, unknown>;
           if ("where" in args) {
-            (argsWithTenant.where as Record<string, unknown>).tenantId =
-              tenantId;
+            (argsWithTenant.where as Record<string, unknown>).tenantId = tenantId;
           }
           return query(argsWithTenant);
         },
@@ -770,10 +769,7 @@ import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from "./modules/prisma/prisma.module";
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    PrismaModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule],
 })
 export class AppModule {}
 ```
@@ -829,6 +825,7 @@ git commit -m "feat(api): init NestJS app with Prisma module"
 ### Task 4: 共通ガード・デコレータ・フィルタ
 
 **Files:**
+
 - Create: `apps/api/src/common/decorators/current-user.decorator.ts`
 - Create: `apps/api/src/common/decorators/roles.decorator.ts`
 - Create: `apps/api/src/common/decorators/public.decorator.ts`
@@ -884,12 +881,7 @@ export const CurrentUser = createParamDecorator(
 `apps/api/src/common/guards/auth.guard.ts`:
 
 ```typescript
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
@@ -964,12 +956,7 @@ export class RolesGuard implements CanActivate {
 `apps/api/src/common/interceptors/tenant.interceptor.ts`:
 
 ```typescript
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-} from "@nestjs/common";
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable } from "rxjs";
 
 @Injectable()
@@ -989,13 +976,7 @@ export class TenantInterceptor implements NestInterceptor {
 `apps/api/src/common/filters/http-exception.filter.ts`:
 
 ```typescript
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import type { Response } from "express";
 
 @Catch()
@@ -1005,22 +986,15 @@ export class HttpExceptionFilterImpl implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const message =
-      exception instanceof HttpException
-        ? exception.message
-        : "Internal server error";
+      exception instanceof HttpException ? exception.message : "Internal server error";
 
     response.status(status).json({
       statusCode: status,
       message,
-      error:
-        exception instanceof HttpException
-          ? exception.name
-          : "InternalServerError",
+      error: exception instanceof HttpException ? exception.name : "InternalServerError",
     });
   }
 }
@@ -1066,17 +1040,15 @@ describe("AuthGuard", () => {
 
   it("throws on missing token", async () => {
     (reflector.getAllAndOverride as jest.Mock).mockReturnValue(false);
-    await expect(guard.canActivate(mockContext())).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(guard.canActivate(mockContext())).rejects.toThrow(UnauthorizedException);
   });
 
   it("throws on invalid token", async () => {
     (reflector.getAllAndOverride as jest.Mock).mockReturnValue(false);
     (jwtService.verifyAsync as jest.Mock).mockRejectedValue(new Error());
-    await expect(
-      guard.canActivate(mockContext("Bearer bad-token")),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(guard.canActivate(mockContext("Bearer bad-token"))).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it("sets user on valid token", async () => {
@@ -1110,6 +1082,7 @@ git commit -m "feat(api): add guards, decorators, interceptors, exception filter
 ### Task 5: Tenantモジュール
 
 **Files:**
+
 - Create: `apps/api/src/modules/tenant/dto/create-tenant.dto.ts`
 - Create: `apps/api/src/modules/tenant/tenant.service.ts`
 - Create: `apps/api/src/modules/tenant/tenant.controller.ts`
@@ -1169,10 +1142,7 @@ describe("TenantService", () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TenantService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [TenantService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<TenantService>(TenantService);
@@ -1194,9 +1164,9 @@ describe("TenantService", () => {
 
     it("throws ConflictException on duplicate slug", async () => {
       prisma.tenant.findUnique.mockResolvedValue({ id: "existing" });
-      await expect(
-        service.create({ name: "Test", slug: "existing-slug" }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.create({ name: "Test", slug: "existing-slug" })).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -1323,6 +1293,7 @@ git commit -m "feat(api): add tenant module with CRUD and slug uniqueness"
 ### Task 6: Authモジュール（マジックリンク + パスワード認証）
 
 **Files:**
+
 - Create: `apps/api/src/modules/auth/dto/login.dto.ts`
 - Create: `apps/api/src/modules/auth/dto/register.dto.ts`
 - Create: `apps/api/src/modules/auth/dto/magic-link.dto.ts`
@@ -1592,11 +1563,7 @@ Expected: FAIL — AuthService not found
 `apps/api/src/modules/auth/auth.service.ts`:
 
 ```typescript
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -1622,9 +1589,7 @@ export class AuthService {
       throw new ConflictException("User with this email already exists");
     }
 
-    const passwordHash = dto.password
-      ? await bcrypt.hash(dto.password, 10)
-      : null;
+    const passwordHash = dto.password ? await bcrypt.hash(dto.password, 10) : null;
 
     const user = await this.prisma.user.create({
       data: {
@@ -1815,12 +1780,7 @@ import { AuthGuard } from "./common/guards/auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    PrismaModule,
-    TenantModule,
-    AuthModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TenantModule, AuthModule],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
@@ -1849,6 +1809,7 @@ git commit -m "feat(api): add auth module with password + magic link authenticat
 ### Task 7: User + Groupモジュール
 
 **Files:**
+
 - Create: `apps/api/src/modules/user/dto/create-user.dto.ts`
 - Create: `apps/api/src/modules/user/dto/update-user.dto.ts`
 - Create: `apps/api/src/modules/user/user.service.ts`
@@ -1939,10 +1900,7 @@ describe("UserService", () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [UserService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<UserService>(UserService);
@@ -2116,10 +2074,7 @@ describe("GroupService", () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GroupService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [GroupService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<GroupService>(GroupService);
@@ -2223,19 +2178,13 @@ export class GroupController {
 
   @Roles("ADMIN")
   @Post()
-  create(
-    @CurrentUser() user: CurrentUserPayload,
-    @Body() dto: CreateGroupDto,
-  ) {
+  create(@CurrentUser() user: CurrentUserPayload, @Body() dto: CreateGroupDto) {
     return this.groupService.create(user.tenantId, dto);
   }
 
   @Roles("ADMIN")
   @Delete(":id")
-  delete(
-    @CurrentUser() user: CurrentUserPayload,
-    @Param("id") id: string,
-  ) {
+  delete(@CurrentUser() user: CurrentUserPayload, @Param("id") id: string) {
     return this.groupService.delete(user.tenantId, id);
   }
 }
@@ -2285,6 +2234,7 @@ git commit -m "feat(api): add user and group modules with CRUD"
 ### Task 8: DBマイグレーション + シードデータ + E2Eテスト
 
 **Files:**
+
 - Create: `packages/db/prisma/seed.ts`
 - Create: `apps/api/test/jest-e2e.json`
 - Create: `apps/api/test/auth.e2e-spec.ts`
@@ -2533,7 +2483,6 @@ describe("Auth (e2e)", () => {
 
     expect(res.body.name).toBe("1班");
   });
-
 });
 ```
 

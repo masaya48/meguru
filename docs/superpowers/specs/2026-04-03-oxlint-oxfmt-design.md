@@ -6,10 +6,10 @@
 
 ## ツール構成
 
-| 役割 | メイン | 補完 |
-|------|--------|------|
-| Lint | oxlint | ESLint（next/core-web-vitals, NestJS推奨ルール） |
-| Format | oxfmt | なし（Prettier不要） |
+| 役割   | メイン | 補完                                             |
+| ------ | ------ | ------------------------------------------------ |
+| Lint   | oxlint | ESLint（next/core-web-vitals, NestJS推奨ルール） |
+| Format | oxfmt  | なし（Prettier不要）                             |
 
 ## 設定ファイル配置
 
@@ -76,8 +76,8 @@ lint-and-format:
     - uses: pnpm/action-setup@v4
     - uses: actions/setup-node@v4
       with:
-        node-version-file: '.tool-versions'
-        cache: 'pnpm'
+        node-version-file: ".tool-versions"
+        cache: "pnpm"
     - run: pnpm install --frozen-lockfile
     - run: pnpm format:check
     - run: pnpm lint

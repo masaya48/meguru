@@ -1,3 +1,8 @@
+---
+name: migrate
+description: Prisma マイグレーションを実行する。
+---
+
 Prisma マイグレーションを実行する。
 
 1. `pnpm db:generate` で Prisma Client を再生成

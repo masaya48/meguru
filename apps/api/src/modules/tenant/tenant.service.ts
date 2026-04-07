@@ -15,7 +15,7 @@ export class TenantService {
     }
 
     return this.prisma.tenant.create({
-      data: { name: dto.name, slug: dto.slug },
+      data: { name: dto.name, slug: dto.slug, genre: dto.genre },
     });
   }
 
